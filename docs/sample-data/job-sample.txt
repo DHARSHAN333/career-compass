@@ -1,0 +1,39 @@
+Senior Full-Stack Developer
+
+Company: TechCorp Inc.
+
+About the Role:
+We are seeking an experienced Full-Stack Developer to join our growing engineering team. The ideal candidate will have strong expertise in modern web technologies and a passion for building scalable applications.
+
+Required Skills:
+- 5+ years of experience in full-stack development
+- Expert-level knowledge of React.js and Node.js
+- Strong experience with TypeScript
+- Proficiency in Python for backend services
+- Experience with MongoDB or other NoSQL databases
+- RESTful API design and implementation
+- Git version control
+- Docker and containerization
+
+Preferred Qualifications:
+- Experience with AWS or cloud platforms
+- Knowledge of microservices architecture
+- Familiarity with CI/CD pipelines
+- Experience with GraphQL
+- Understanding of ML/AI integration
+- Bachelor's degree in Computer Science or related field
+
+Responsibilities:
+- Design and develop scalable web applications
+- Collaborate with cross-functional teams
+- Write clean, maintainable code
+- Participate in code reviews
+- Mentor junior developers
+- Contribute to technical documentation
+
+Benefits:
+- Competitive salary
+- Health insurance
+- Remote work options
+- Professional development budget
+- Stock options

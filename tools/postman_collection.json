@@ -1,0 +1,124 @@
+{
+  "info": {
+    "name": "Career Compass API",
+    "description": "API collection for Career Compass application",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Backend API",
+      "item": [
+        {
+          "name": "Analyze Resume",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resumeText\": \"Python developer with 5 years of experience in web development. Skilled in Django, Flask, React, and AWS.\",\n  \"jobDescription\": \"Looking for a Senior Python Developer with experience in FastAPI, Docker, and cloud platforms.\",\n  \"userId\": \"demo-user-1\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/v1/analyze",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "v1", "analyze"]
+            }
+          }
+        },
+        {
+          "name": "Chat with Analysis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"analysisId\": \"{{analysisId}}\",\n  \"message\": \"How can I improve my Docker skills?\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/v1/chat",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "v1", "chat"]
+            }
+          }
+        },
+        {
+          "name": "Get Analysis",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:5000/api/v1/analysis/{{analysisId}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "v1", "analysis", "{{analysisId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Service",
+      "item": [
+        {
+          "name": "Analyze (AI Service)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resume_text\": \"Python developer with 5 years of experience\",\n  \"job_description\": \"Looking for Senior Python Developer\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/v1/analyze",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["v1", "analyze"]
+            }
+          }
+        },
+        {
+          "name": "Chat (AI Service)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"What certifications should I pursue?\",\n  \"context\": {\n    \"resume_text\": \"Python developer\",\n    \"job_description\": \"Senior Python role\",\n    \"score\": 75,\n    \"gaps\": [\"Docker\", \"Kubernetes\"]\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/v1/chat",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["v1", "chat"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
