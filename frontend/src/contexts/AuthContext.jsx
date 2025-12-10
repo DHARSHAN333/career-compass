@@ -14,29 +14,35 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('token'));
 
-  // Configure axios defaults
+  // Initialize auth on mount - load user from token if exists
   useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      loadUser();
-    } else {
+    const initAuth = async () => {
+      const storedToken = localStorage.getItem('token');
+      
+      if (storedToken) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+        
+        try {
+          const response = await axios.get('http://localhost:5000/api/v1/auth/me');
+          setUser(response.data.data.user);
+        } catch (error) {
+          // Only logout on 401 (invalid token), not on network/server errors
+          if (error.response?.status === 401) {
+            console.warn('Invalid token, clearing...');
+            localStorage.removeItem('token');
+            delete axios.defaults.headers.common['Authorization'];
+          } else {
+            console.error('Server error, keeping token for retry:', error.message);
+          }
+        }
+      }
+      
       setLoading(false);
-    }
-  }, [token]);
+    };
 
-  const loadUser = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/v1/auth/me');
-      setUser(response.data.data.user);
-    } catch (error) {
-      console.error('Failed to load user:', error);
-      logout();
-    } finally {
-      setLoading(false);
-    }
-  };
+    initAuth();
+  }, []);
 
   const register = async (userData) => {
     try {
@@ -44,7 +50,6 @@ export const AuthProvider = ({ children }) => {
       const { user, token } = response.data.data;
       
       localStorage.setItem('token', token);
-      setToken(token);
       setUser(user);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
@@ -66,7 +71,6 @@ export const AuthProvider = ({ children }) => {
       const { user, token } = response.data.data;
       
       localStorage.setItem('token', token);
-      setToken(token);
       setUser(user);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
