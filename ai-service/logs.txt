@@ -1,0 +1,18 @@
+Chat error: 'charmap' codec can't encode character '\U0001f50d' in position 2: character maps to <undefined>
+INFO:     127.0.0.1:49243 - "POST /api/chat HTTP/1.1" 500 Internal Server Error
+Chat error: 'charmap' codec can't encode character '\U0001f50d' in position 2: character maps to <undefined>
+INFO:     127.0.0.1:49246 - "POST /api/chat HTTP/1.1" 500 Internal Server Error
+Chat error: 'charmap' codec can't encode character '\U0001f50d' in position 2: character maps to <undefined>
+INFO:     127.0.0.1:49258 - "POST /api/chat HTTP/1.1" 500 Internal Server Error
+  Chat error: 'charmap' codec can't encode character '\U0001f50d' in position 2: character maps to <undefined>
+INFO:     127.0.0.1:49283 - "POST /api/chat HTTP/1.1" 500 Internal Server Error
+Chat error: 'charmap' codec can't encode character '\U0001f50d' in position 2: character maps to <undefined>
+INFO:     127.0.0.1:49283 - "POST /api/chat HTTP/1.1" 500 Internal Server Error
+Chat error: 'charmap' codec can't encode character '\U0001f50d' in position 2: character maps to <undefined>
+INFO:     127.0.0.1:49323 - "POST /api/chat HTTP/1.1" 500 Internal Server Error
+Chat error: 'charmap' codec can't encode character '\U0001f50d' in position 2: character maps to <undefined>
+INFO:     127.0.0.1:49323 - "POST /api/chat HTTP/1.1" 500 Internal Server Error
+Chat error: 'charmap' codec can't encode character '\U0001f50d' in position 2: character maps to <undefined>
+INFO:     127.0.0.1:49323 - "POST /api/chat HTTP/1.1" 500 Internal Server Error
+Chat error: 'charmap' codec can't encode character '\U0001f50d' in position 2: character maps to <undefined>
+INFO:     127.0.0.1:55993 - "POST /api/chat HTTP/1.1" 500 Internal Server Error

@@ -49,93 +49,162 @@ async def get_llm_response(prompt: str, context: str = "", history: Optional[Lis
     # Try Gemini first
     if GEMINI_AVAILABLE:
         try:
+            print("Using Gemini AI for response...")
             model = get_gemini_model()
             full_prompt = f"{context}\n\n{prompt}" if context else prompt
             response = model.generate_content(full_prompt)
+            print("Gemini response received")
             return response.text
         except Exception as e:
             print(f"Gemini Error: {e}")
+    else:
+        print("Gemini not available (missing API key)")
     
     # Fallback to OpenAI
     llm = get_llm()
     if llm is not None:
         try:
+            print("Using OpenAI for response...")
             full_prompt = f"{context}\n\n{prompt}" if context else prompt
             response = llm.predict(full_prompt)
+            print("OpenAI response received")
             return response
         except Exception as e:
             print(f"OpenAI Error: {e}")
     
     # Final fallback to mock response
+    print("Using mock response (AI services unavailable)")
     return get_mock_response(prompt, context)
 
 def get_mock_response(prompt: str, context: str = "") -> str:
     """
-    Provide intelligent mock responses based on keywords and context
+    Provide intelligent mock responses based on keywords and actual resume context
     """
     prompt_lower = prompt.lower()
     
-    # Extract context information if available
+    # Extract detailed context information
+    import re
     match_score = 0
-    if 'match_score' in context.lower():
-        try:
-            import re
-            score_match = re.search(r'match_score["\s:]+(\d+)', context.lower())
-            if score_match:
-                match_score = int(score_match.group(1))
-        except:
-            pass
+    matched_skills = []
+    missing_skills = []
+    resume_snippet = ""
+    
+    if context:
+        # Extract match score
+        score_match = re.search(r'MATCH SCORE[:\s]+(\d+)', context, re.IGNORECASE)
+        if score_match:
+            match_score = int(score_match.group(1))
+        
+        # Extract matched skills
+        matched_match = re.search(r'MATCHED SKILLS[:\s]+([^\n]+)', context, re.IGNORECASE)
+        if matched_match:
+            matched_skills = [s.strip() for s in matched_match.group(1).split(',')[:5]]
+        
+        # Extract missing skills
+        missing_match = re.search(r'MISSING SKILLS[:\s]+([^\n]+)', context, re.IGNORECASE)
+        if missing_match:
+            missing_skills = [s.strip() for s in missing_match.group(1).split(',')[:5]]
+        
+        # Extract resume snippet (first 200 chars of resume)
+        resume_match = re.search(r"CANDIDATE'S RESUME[:\s]+([^\n]{50,200})", context, re.IGNORECASE)
+        if resume_match:
+            resume_snippet = resume_match.group(1).strip()
+    
+    # Greetings and simple questions
+    if any(word in prompt_lower for word in ['hi', 'hello', 'hey', 'greetings']) and len(prompt_lower.split()) <= 3:
+        if match_score > 0:
+            return (
+                f"Hello! I'm your AI Career Advisor.\n\n"
+                f"I've analyzed your resume and you have a **{match_score}% match** with the job!\n\n"
+                f"I can help you with:\n"
+                f"- Understanding your strengths and gaps\n"
+                f"- Skill development priorities\n"
+                f"- Resume improvement tips\n"
+                f"- Interview preparation\n\n"
+                f"What would you like to know?"
+            )
+        return ("Hello! I'm your AI Career Advisor. I can help with resume analysis, career advice, "
+                "skill development, and interview prep. What would you like to know?")
     
     # Skill learning questions
-    if any(word in prompt_lower for word in ['skill', 'learn', 'priorit', 'study']):
-        return (
-            "Based on your analysis, I recommend prioritizing skills in this order:\\n"
-            "\\n**High Priority:**\\n"
-            "1. Focus on the high-priority gaps identified in your Gap Analysis\\n"
-            "2. Start with skills that are most frequently mentioned in the job description\\n"
-            "3. Consider certifications for cloud technologies (AWS, Azure) if applicable\\n"
-            "\\n**Learning Resources:**\\n"
-            "- Online platforms: Coursera, Udemy, Pluralsight\\n"
-            "- Official documentation and tutorials\\n"
-            "- Build hands-on projects to demonstrate proficiency\\n"
-            "- Join communities (GitHub, Stack Overflow, Discord)\\n"
-            "\\nTip: Focus on one skill at a time and aim for practical application over theory."
+    if any(word in prompt_lower for word in ['skill', 'learn', 'priorit', 'study', 'what skills']):
+        response_parts = []
+        
+        # Reference actual skills
+        if matched_skills:
+            response_parts.append(f"**Your Strong Skills (already on your resume):**\n{', '.join(matched_skills)}")
+        
+        if missing_skills:
+            response_parts.append(f"\n**Skills You Should Learn (missing from your profile):**\n" + 
+                                "\n".join([f"{i+1}. **{skill}** - High priority for this role" 
+                                          for i, skill in enumerate(missing_skills[:3])]))
+        
+        response_parts.append(
+            "\n**Learning Strategy:**\n"
+            "- Start with the first missing skill - take an online course (Udemy, Coursera)\n"
+            "- Build a hands-on project to demonstrate proficiency\n"
+            "- Add it to your resume with project examples\n"
+            "- Then move to the next skill\n"
+            "\n**Tip:** Focus on practical application over theory. Build real projects!"
+        )
+        
+        return "\n".join(response_parts) if response_parts else (
+            "Based on your Gap Analysis, prioritize the high-priority skills. "
+            "Focus on skills most frequently mentioned in the job description."
         )
     
     # Resume improvement questions
-    elif any(word in prompt_lower for word in ['improve', 'better', 'stronger', 'enhance']):
-        return (
-            "Here are specific ways to improve your resume match:\\n"
-            "\\n**Content:**\\n"
-            "1. Add quantifiable achievements (e.g., 'Improved performance by 40%')\\n"
-            "2. Use action verbs (Led, Developed, Implemented, Optimized)\\n"
-            "3. Include relevant keywords from the job description\\n"
-            "4. Highlight impact and outcomes, not just responsibilities\\n"
-            "\\n**Structure:**\\n"
-            "5. Lead with your strongest, most relevant experience\\n"
-            "6. Keep descriptions concise but impactful (2-3 bullet points per role)\\n"
-            "7. Include a summary section highlighting your key strengths\\n"
-            "\\n**Technical:**\\n"
-            "8. Create a dedicated skills section organized by category\\n"
-            "9. Mention specific tools, frameworks, and technologies\\n"
-            "10. Include links to portfolio, GitHub, or relevant projects"
+    elif any(word in prompt_lower for word in ['improve', 'better', 'stronger', 'enhance', 'resume']):
+        response_parts = []
+        
+        if resume_snippet:
+            response_parts.append(f"Looking at your profile: \"{resume_snippet[:100]}...\"")
+        
+        response_parts.append(
+            "\n**Specific Ways to Improve Your Resume:**\n"
+            "1. **Add Quantifiable Achievements** - Instead of 'Managed projects', write 'Led 5 projects serving 100K users, improving performance by 40%'\n"
+            "2. **Use Action Verbs** - Led, Developed, Implemented, Optimized, Architected\n"
+            "3. **Include Keywords** - Add relevant skills from the job description"
         )
+        
+        if missing_skills:
+            response_parts.append(f"\n4. **Add Missing Skills** - Consider adding: {', '.join(missing_skills[:3])}")
+        
+        response_parts.append(
+            "\n5. **Show Impact** - Focus on outcomes, not just tasks\n"
+            "6. **Technical Details** - Mention specific tools/frameworks you used\n"
+            "7. **Portfolio Links** - Add GitHub, LinkedIn, or project demos"
+        )
+        
+        return "\n".join(response_parts)
     
     # Readiness/qualification questions
-    elif any(word in prompt_lower for word in ['ready', 'qualified', 'chance', 'fit']):
-        readiness_msg = "You have a solid foundation" if match_score >= 60 else "You should focus on key skill development"
-        return (
-            f"{readiness_msg} for this role. \\n"
-            f"\\n**Your Strengths:**\\n"
-            f"- Relevant experience in core technologies\\n"
-            f"- Demonstrated ability to learn and adapt\\n"
-            f"\\n**Areas to Develop:**\\n"
-            f"- Address high-priority skill gaps through courses or projects\\n"
-            f"- Quantify your achievements to showcase impact\\n"
-            f"- Highlight relevant projects prominently\\n"
-            f"\\nRemember: Employers value attitude, learning ability, and cultural fit as much as current skills. "
-            f"Be honest about gaps and emphasize your commitment to growth."
-        )
+    elif any(word in prompt_lower for word in ['ready', 'qualified', 'chance', 'fit', 'strong']):
+        if match_score >= 80:
+            readiness = f"Excellent news! Your **{match_score}% match score** shows you're highly qualified"
+        elif match_score >= 60:
+            readiness = f"Good news! Your **{match_score}% match score** shows you have a solid foundation"
+        else:
+            readiness = f"Your **{match_score}% match score** indicates some skill gaps to address"
+        
+        response_parts = [readiness]
+        
+        if matched_skills:
+            response_parts.append(f"\n**Your Strongest Qualifications:**\n" + 
+                                "\n".join([f"- {skill}" for skill in matched_skills[:4]]))
+        
+        if missing_skills:
+            response_parts.append(f"\n**Skills to Develop:**\n" + 
+                                "\n".join([f"- {skill}" for skill in missing_skills[:3]]))
+        
+        if resume_snippet:
+            response_parts.append(f"\nBased on your background ({resume_snippet[:100]}...), " + 
+                                "focus on highlighting your relevant experience and addressing key skill gaps.")
+        
+        response_parts.append("\nTIP: Employers value attitude and learning ability. " + 
+                            "Be honest about gaps and show enthusiasm to learn!")
+        
+        return "\n".join(response_parts)
     
     # Experience/project presentation
     elif any(word in prompt_lower for word in ['experience', 'project', 'highlight', 'showcase']):

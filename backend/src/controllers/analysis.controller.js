@@ -78,17 +78,17 @@ export const analyzeResume = async (req, res, next) => {
 
 export const chatWithAnalysis = async (req, res, next) => {
   try {
-    const { analysisId, message } = req.body;
+    const { analysisId, message, context } = req.body;
 
-    if (!analysisId || !message) {
+    if (!message) {
       return res.status(400).json({
         success: false,
-        error: 'Both analysisId and message are required'
+        error: 'Message is required'
       });
     }
 
-    // Try to get analysis context from database or session
-    let analysisContext = {
+    // Use context from request body (preferred) or fetch from database
+    let analysisContext = context || {
       jobDescription: '',
       resumeText: '',
       matchScore: 0,
@@ -97,8 +97,8 @@ export const chatWithAnalysis = async (req, res, next) => {
       recommendations: []
     };
 
-    // Try to fetch from database if connected
-    if (mongoose.connection.readyState === 1) {
+    // If no context provided and analysisId exists, try to fetch from database
+    if (!context && analysisId && mongoose.connection.readyState === 1) {
       try {
         const analysis = await Analysis.findById(analysisId);
         if (analysis) {
@@ -115,6 +115,13 @@ export const chatWithAnalysis = async (req, res, next) => {
         logger.warn('Could not fetch analysis from DB:', err.message);
       }
     }
+
+    logger.info('Chat context:', {
+      hasResumeText: !!analysisContext.resumeText,
+      hasJobDescription: !!analysisContext.jobDescription,
+      matchScore: analysisContext.matchScore,
+      resumeLength: analysisContext.resumeText?.length || 0
+    });
 
     // Call AI service for chat with actual context
     const chatResponse = await aiClient.chat({

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from app.schemas.requests import AnalyzeRequest, ChatRequest, ExtractRequest
 from app.schemas.responses import (
     AnalyzeResponse, ChatResponse, ExtractResponse,
@@ -9,7 +9,9 @@ from app.pipelines.gap_analysis import identify_gaps
 from app.pipelines.tip_generator import generate_tips, generate_top_tip
 from app.pipelines.extract_skills import extract_skills, find_matched_skills, find_missing_skills
 from app.clients.llm_client import get_llm_response
+from app.utils.text_extractor import TextExtractor
 import os
+from typing import Optional
 
 router = APIRouter()
 
@@ -70,26 +72,97 @@ async def analyze_resume(request: AnalyzeRequest):
 @router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """
-    Handle chat queries about career advice
+    Handle chat queries about career advice with full resume context
     """
     try:
         context = request.context or {}
         
-        # Build context string
+        # Debug logging (without emojis to prevent encoding errors)
+        print(f"\n[Chat] Request received:")
+        print(f"   Message: {request.message}")
+        print(f"   Has resumeText: {bool(context.get('resumeText') or context.get('resume_text'))}")
+        print(f"   Match Score: {context.get('matchScore') or context.get('match_score')}")
+        print(f"   Skills: {context.get('skills')}")
+        
+        # Build comprehensive context string with full resume details
         context_parts = []
-        if context.get('resume_text'):
-            context_parts.append(f"Resume: {context['resume_text'][:500]}...")
-        if context.get('job_description'):
-            context_parts.append(f"Job Description: {context['job_description'][:500]}...")
-        if context.get('match_score'):
-            context_parts.append(f"Match Score: {context['match_score']}%")
+        
+        # Include full resume text (not truncated) for accurate responses
+        if context.get('resumeText') or context.get('resume_text'):
+            resume_text = context.get('resumeText') or context.get('resume_text')
+            context_parts.append(f"CANDIDATE'S RESUME:\n{resume_text}\n")
+        
+        # Include full job description
+        if context.get('jobDescription') or context.get('job_description'):
+            job_desc = context.get('jobDescription') or context.get('job_description')
+            context_parts.append(f"TARGET JOB DESCRIPTION:\n{job_desc}\n")
+        
+        # Include analysis results
+        if context.get('matchScore') or context.get('match_score'):
+            score = context.get('matchScore') or context.get('match_score')
+            context_parts.append(f"MATCH SCORE: {score}%")
+        
+        # Include matched skills
+        if context.get('skills', {}).get('matched'):
+            matched = ', '.join([str(s) if isinstance(s, str) else s.get('name', str(s)) 
+                               for s in context['skills']['matched'][:10]])
+            context_parts.append(f"MATCHED SKILLS: {matched}")
+        
+        # Include missing skills (gaps)
+        if context.get('skills', {}).get('missing'):
+            missing = ', '.join([str(s) if isinstance(s, str) else s.get('name', str(s)) 
+                               for s in context['skills']['missing'][:10]])
+            context_parts.append(f"MISSING SKILLS: {missing}")
+        
+        # Include gaps from analysis
         if context.get('gaps'):
-            context_parts.append(f"Identified Gaps: {', '.join(context['gaps'][:5])}")
+            gaps_list = [str(g) if isinstance(g, str) else g.get('description', str(g)) 
+                        for g in context['gaps'][:5]]
+            context_parts.append(f"IDENTIFIED GAPS: {', '.join(gaps_list)}")
+        
+        # Include recommendations
+        if context.get('recommendations'):
+            recs = [str(r) if isinstance(r, str) else r.get('text', str(r)) 
+                   for r in context['recommendations'][:3]]
+            context_parts.append(f"KEY RECOMMENDATIONS: {'; '.join(recs)}")
         
         context_str = "\n".join(context_parts) if context_parts else ""
         
-        # Get LLM response
-        response = await get_llm_response(request.message, context_str, request.history)
+        # Enhanced system prompt for context-aware responses
+        system_prompt = """You are an expert career advisor and resume consultant. You have access to the candidate's full resume, 
+the job description they're applying for, and detailed analysis results. 
+
+CRITICAL INSTRUCTIONS - YOU MUST FOLLOW THESE:
+1. ALWAYS START by referencing something SPECIFIC from their resume (company name, role, project, skill, year)
+2. NEVER give generic advice - every response must be personalized to THIS candidate
+3. Quote or paraphrase actual text from their resume when relevant
+4. If asked about skills, list the EXACT skills from their MATCHED SKILLS list
+5. If asked about gaps, mention the EXACT missing skills from the analysis
+6. If you see experience like "5 years at Company X", reference it by name
+7. Format responses clearly with bullet points when listing multiple items
+8. Keep responses 2-4 paragraphs, conversational but professional
+
+EXAMPLES OF GOOD RESPONSES:
+- "Based on your 5 years of Python experience and your work with Django at [Company], you're well-positioned..."
+- "I see you have React, Node.js, and AWS in your skillset. Your strongest matches are: [list actual matched skills]"
+- "Looking at your resume, you're missing: Kubernetes and Docker. I recommend..."
+
+EXAMPLES OF BAD RESPONSES (NEVER DO THIS):
+- "You should focus on high-priority gaps" (too generic - which gaps?)
+- "Consider learning cloud technologies" (be specific - which ones are missing?)
+- "Build projects to demonstrate skills" (which skills? from where in their resume?)
+
+Context Information:
+{context}
+
+User Question: {message}
+
+Remember: BE SPECIFIC. Reference their actual resume content in your response."""
+        
+        formatted_prompt = system_prompt.format(context=context_str, message=request.message)
+        
+        # Get LLM response with enhanced context
+        response = await get_llm_response(formatted_prompt, "", request.history)
         
         return ChatResponse(
             response=response,
@@ -100,15 +173,55 @@ async def chat(request: ChatRequest):
         raise HTTPException(status_code=500, detail=f"Chat failed: {str(e)}")
 
 @router.post("/extract", response_model=ExtractResponse)
-async def extract_text(request: ExtractRequest):
+async def extract_text(file: UploadFile = File(...)):
     """
-    Extract text from resume file (PDF, DOCX, etc.)
+    Extract text from uploaded resume file (PDF, DOCX, images)
     """
     try:
-        # Placeholder for file extraction
-        # Would implement using pypdf or python-docx
-        text = "Text extraction not yet implemented. Please paste resume text directly."
+        # Read file content
+        file_content = await file.read()
+        filename = file.filename
         
-        return ExtractResponse(text=text)
+        # Extract text using appropriate method
+        extractor = TextExtractor()
+        extracted_text = extractor.extract_text(file_content, filename)
+        
+        if not extracted_text or len(extracted_text.strip()) < 50:
+            raise HTTPException(
+                status_code=400,
+                detail="Could not extract sufficient text from the file. Please ensure the file contains readable text."
+            )
+        
+        return ExtractResponse(text=extracted_text)
+        
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Extract error: {e}")
+        raise HTTPException(status_code=500, detail=f"Text extraction failed: {str(e)}")
+
+@router.post("/extract-base64", response_model=ExtractResponse)
+async def extract_text_from_base64(request: ExtractRequest):
+    """
+    Extract text from base64 encoded file
+    """
+    try:
+        extractor = TextExtractor()
+        extracted_text = extractor.extract_from_base64(
+            request.file_content,
+            request.file_type
+        )
+        
+        if not extracted_text or len(extracted_text.strip()) < 50:
+            raise HTTPException(
+                status_code=400,
+                detail="Could not extract sufficient text from the file"
+            )
+        
+        return ExtractResponse(text=extracted_text)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Base64 extract error: {e}")
+        raise HTTPException(status_code=500, detail=f"Text extraction failed: {str(e)}")

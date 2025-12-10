@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import './UploadResume.css';
 
 function UploadResume({ onTextExtracted }) {
   const [fileName, setFileName] = useState('');
@@ -60,16 +59,24 @@ function UploadResume({ onTextExtracted }) {
   };
 
   return (
-    <div className="upload-resume">
-      <div className="toggle-buttons">
+    <div>
+      <div className="flex gap-2 mb-4">
         <button
-          className={!pasteMode ? 'toggle-btn active' : 'toggle-btn'}
+          className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-colors ${
+            !pasteMode
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+          }`}
           onClick={() => setPasteMode(false)}
         >
           📁 Upload File
         </button>
         <button
-          className={pasteMode ? 'toggle-btn active' : 'toggle-btn'}
+          className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-colors ${
+            pasteMode
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+          }`}
           onClick={() => setPasteMode(true)}
         >
           📝 Paste Text
@@ -78,17 +85,21 @@ function UploadResume({ onTextExtracted }) {
 
       {!pasteMode ? (
         <div
-          className={`upload-area ${isDragging ? 'dragging' : ''}`}
+          className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-all ${
+            isDragging
+              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+              : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 bg-gray-50 dark:bg-gray-800'
+          }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          <label htmlFor="resume-upload" className="upload-label">
-            <div className="upload-icon">📄</div>
-            <p className="upload-text">
+          <label htmlFor="resume-upload" className="cursor-pointer block">
+            <div className="text-6xl mb-4">📄</div>
+            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
               {fileName ? `Selected: ${fileName}` : 'Click to upload or drag & drop'}
             </p>
-            <p className="upload-hint">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Supports: PDF, DOC, DOCX, TXT
             </p>
           </label>
@@ -97,20 +108,20 @@ function UploadResume({ onTextExtracted }) {
             type="file"
             accept=".pdf,.doc,.docx,.txt"
             onChange={handleFileChange}
-            style={{ display: 'none' }}
+            className="hidden"
           />
         </div>
       ) : (
-        <div className="paste-area">
+        <div>
           <textarea
-            className="paste-textarea"
+            className="textarea-field w-full mb-4"
             placeholder="Paste your resume text here...\n\nInclude:\n• Contact Information\n• Work Experience\n• Education\n• Skills\n• Projects"
             value={pastedText}
             onChange={(e) => setPastedText(e.target.value)}
             rows={12}
           />
           <button
-            className="paste-submit-btn"
+            className="btn-success w-full"
             onClick={handlePasteText}
             disabled={!pastedText.trim()}
           >
@@ -120,7 +131,10 @@ function UploadResume({ onTextExtracted }) {
       )}
 
       {fileName && (
-        <button className="clear-btn" onClick={handleClear}>
+        <button 
+          className="mt-4 w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+          onClick={handleClear}
+        >
           ✕ Clear
         </button>
       )}

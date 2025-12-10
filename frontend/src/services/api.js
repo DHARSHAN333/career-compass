@@ -27,10 +27,11 @@ export const getHistory = async () => {
   return response.data;
 };
 
-export const sendChatMessage = async (analysisId, message) => {
+export const sendChatMessage = async (analysisId, message, context) => {
   const response = await api.post('/chat', {
     analysisId,
-    message
+    message,
+    context
   });
   return response.data;
 };

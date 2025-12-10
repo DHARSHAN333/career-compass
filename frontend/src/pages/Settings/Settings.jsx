@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import styles from './Settings.module.css';
 
 function Settings() {
   // State for AI Configuration
@@ -36,8 +35,12 @@ function Settings() {
       appliedTheme = prefersDark ? 'dark' : 'light';
     }
     
-    document.documentElement.setAttribute('data-theme', appliedTheme);
-    document.body.className = appliedTheme === 'dark' ? 'dark-mode' : 'light-mode';
+    // Use Tailwind's dark mode class approach
+    if (appliedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   };
 
   // Load settings on mount
@@ -167,105 +170,127 @@ function Settings() {
   };
 
   return (
-    <div className={styles.settings}>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className={styles.header}>
-        <h1>⚙️ Settings</h1>
-        <p className={styles.subtitle}>Customize your Career Compass experience</p>
+      <div className="max-w-7xl mx-auto mb-8 text-center">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">⚙️ Settings</h1>
+        <p className="text-lg text-gray-600 dark:text-gray-400">Customize your Career Compass experience</p>
       </div>
 
       {/* Save Status Toast */}
       {saveStatus && (
-        <div className={styles.toast}>
+        <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in">
           ✅ {saveStatus}
         </div>
       )}
 
       {/* Tab Navigation */}
-      <div className={styles.tabNav}>
-        <button
-          className={`${styles.tab} ${activeTab === 'ai' ? styles.activeTab : ''}`}
-          onClick={() => setActiveTab('ai')}
-        >
-          🤖 AI Configuration
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'preferences' ? styles.activeTab : ''}`}
-          onClick={() => setActiveTab('preferences')}
-        >
-          🎨 Preferences
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'analysis' ? styles.activeTab : ''}`}
-          onClick={() => setActiveTab('analysis')}
-        >
-          📊 Analysis
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'data' ? styles.activeTab : ''}`}
-          onClick={() => setActiveTab('data')}
-        >
-          💾 Data & Privacy
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'about' ? styles.activeTab : ''}`}
-          onClick={() => setActiveTab('about')}
-        >
-          ℹ️ About
-        </button>
+      <div className="max-w-7xl mx-auto mb-8">
+        <div className="flex flex-wrap gap-2 border-b border-gray-300 dark:border-gray-700">
+          <button
+            className={`px-6 py-3 font-semibold transition-colors ${
+              activeTab === 'ai'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+            }`}
+            onClick={() => setActiveTab('ai')}
+          >
+            🤖 AI Configuration
+          </button>
+          <button
+            className={`px-6 py-3 font-semibold transition-colors ${
+              activeTab === 'preferences'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+            }`}
+            onClick={() => setActiveTab('preferences')}
+          >
+            🎨 Preferences
+          </button>
+          <button
+            className={`px-6 py-3 font-semibold transition-colors ${
+              activeTab === 'analysis'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+            }`}
+            onClick={() => setActiveTab('analysis')}
+          >
+            📊 Analysis
+          </button>
+          <button
+            className={`px-6 py-3 font-semibold transition-colors ${
+              activeTab === 'data'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+            }`}
+            onClick={() => setActiveTab('data')}
+          >
+            💾 Data & Privacy
+          </button>
+          <button
+            className={`px-6 py-3 font-semibold transition-colors ${
+              activeTab === 'about'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+            }`}
+            onClick={() => setActiveTab('about')}
+          >
+            ℹ️ About
+          </button>
+        </div>
       </div>
 
       {/* Tab Content */}
-      <div className={styles.tabContent}>
+      <div className="max-w-7xl mx-auto">
         {/* AI Configuration Tab */}
         {activeTab === 'ai' && (
-          <div className={styles.section}>
-            <h2>🤖 AI Configuration</h2>
-            <p className={styles.sectionDesc}>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">🤖 AI Configuration</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               Configure your AI model settings for personalized analysis
             </p>
 
-            <div className={styles.card}>
-              <div className={styles.formGroup}>
-                <label htmlFor="apiKey">
-                  <span className={styles.labelIcon}>🔑</span>
+            <div className="card p-6 mb-6">
+              <div className="mb-6">
+                <label htmlFor="apiKey" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <span className="mr-2">🔑</span>
                   OpenAI API Key
                 </label>
-                <p className={styles.helpText}>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                   Optional: Add your API key for enhanced AI responses. Without it, the system uses intelligent fallback responses.
                 </p>
-                <div className={styles.inputWrapper}>
+                <div className="flex gap-2">
                   <input
                     type={showApiKey ? 'text' : 'password'}
                     id="apiKey"
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
                     placeholder="sk-..."
-                    className={styles.input}
+                    className="input-field flex-1"
                   />
                   <button
                     type="button"
                     onClick={() => setShowApiKey(!showApiKey)}
-                    className={styles.toggleBtn}
+                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                   >
                     {showApiKey ? '🙈' : '👁️'}
                   </button>
                 </div>
               </div>
 
-              <div className={styles.formGroup}>
-                <label htmlFor="model">
-                  <span className={styles.labelIcon}>🧠</span>
+              <div className="mb-6">
+                <label htmlFor="model" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <span className="mr-2">🧠</span>
                   AI Model
                 </label>
-                <p className={styles.helpText}>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                   Choose the AI model for analysis and chat responses
                 </p>
                 <select
                   id="model"
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
-                  className={styles.select}
+                  className="input-field"
                 >
                   <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Fast, Cost-effective)</option>
                   <option value="gpt-4">GPT-4 (Most Accurate)</option>
@@ -274,12 +299,12 @@ function Settings() {
                 </select>
               </div>
 
-              <button onClick={handleSaveAI} className={styles.primaryBtn}>
+              <button onClick={handleSaveAI} className="btn-primary">
                 💾 Save AI Settings
               </button>
             </div>
 
-            <div className={styles.infoBox}>
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm text-blue-800 dark:text-blue-200">
               <strong>💡 Tip:</strong> The system works great without an API key using intelligent mock responses. 
               Add a key only if you need custom AI-powered analysis.
             </div>
@@ -288,23 +313,23 @@ function Settings() {
 
         {/* Preferences Tab */}
         {activeTab === 'preferences' && (
-          <div className={styles.section}>
-            <h2>🎨 User Preferences</h2>
-            <p className={styles.sectionDesc}>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">🎨 User Preferences</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               Personalize your interface and experience
             </p>
 
-            <div className={styles.card}>
-              <div className={styles.formGroup}>
-                <label htmlFor="theme">
-                  <span className={styles.labelIcon}>🌓</span>
+            <div className="card p-6">
+              <div className="mb-6">
+                <label htmlFor="theme" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <span className="mr-2">🌓</span>
                   Theme
                 </label>
                 <select
                   id="theme"
                   value={theme}
                   onChange={(e) => setTheme(e.target.value)}
-                  className={styles.select}
+                  className="input-field"
                 >
                   <option value="light">☀️ Light Mode</option>
                   <option value="dark">🌙 Dark Mode</option>
@@ -312,16 +337,16 @@ function Settings() {
                 </select>
               </div>
 
-              <div className={styles.formGroup}>
-                <label htmlFor="language">
-                  <span className={styles.labelIcon}>🌍</span>
+              <div className="mb-6">
+                <label htmlFor="language" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <span className="mr-2">🌍</span>
                   Language
                 </label>
                 <select
                   id="language"
                   value={language}
                   onChange={(e) => setLanguage(e.target.value)}
-                  className={styles.select}
+                  className="input-field"
                 >
                   <option value="en">🇺🇸 English</option>
                   <option value="es">🇪🇸 Español</option>
@@ -331,39 +356,41 @@ function Settings() {
                 </select>
               </div>
 
-              <div className={styles.toggleGroup}>
-                <div className={styles.toggleItem}>
+              <div className="space-y-4 mb-6">
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div>
-                    <label>🔔 Notifications</label>
-                    <p className={styles.toggleDesc}>Receive updates about analysis completion</p>
+                    <label className="block font-semibold text-gray-900 dark:text-gray-100">🔔 Notifications</label>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Receive updates about analysis completion</p>
                   </div>
-                  <label className={styles.switch}>
+                  <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
                       checked={notifications}
                       onChange={(e) => setNotifications(e.target.checked)}
+                      className="sr-only peer"
                     />
-                    <span className={styles.slider}></span>
+                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                   </label>
                 </div>
 
-                <div className={styles.toggleItem}>
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div>
-                    <label>💾 Auto-save History</label>
-                    <p className={styles.toggleDesc}>Automatically save analysis to browser storage</p>
+                    <label className="block font-semibold text-gray-900 dark:text-gray-100">💾 Auto-save History</label>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Automatically save analysis to browser storage</p>
                   </div>
-                  <label className={styles.switch}>
+                  <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
                       checked={autoSave}
                       onChange={(e) => setAutoSave(e.target.checked)}
+                      className="sr-only peer"
                     />
-                    <span className={styles.slider}></span>
+                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                   </label>
                 </div>
               </div>
 
-              <button onClick={handleSavePreferences} className={styles.primaryBtn}>
+              <button onClick={handleSavePreferences} className="btn-primary">
                 💾 Save Preferences
               </button>
             </div>
@@ -372,23 +399,23 @@ function Settings() {
 
         {/* Analysis Settings Tab */}
         {activeTab === 'analysis' && (
-          <div className={styles.section}>
-            <h2>📊 Analysis Settings</h2>
-            <p className={styles.sectionDesc}>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">📊 Analysis Settings</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               Customize how your resume analysis is performed
             </p>
 
-            <div className={styles.card}>
-              <div className={styles.formGroup}>
-                <label htmlFor="detailLevel">
-                  <span className={styles.labelIcon}>📝</span>
+            <div className="card p-6">
+              <div className="mb-6">
+                <label htmlFor="detailLevel" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <span className="mr-2">📝</span>
                   Detail Level
                 </label>
                 <select
                   id="detailLevel"
                   value={detailLevel}
                   onChange={(e) => setDetailLevel(e.target.value)}
-                  className={styles.select}
+                  className="input-field"
                 >
                   <option value="quick">⚡ Quick Overview</option>
                   <option value="standard">📄 Standard Analysis</option>
@@ -397,19 +424,19 @@ function Settings() {
                 </select>
               </div>
 
-              <div className={styles.formGroup}>
-                <label htmlFor="priorityFocus">
-                  <span className={styles.labelIcon}>🎯</span>
+              <div className="mb-6">
+                <label htmlFor="priorityFocus" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <span className="mr-2">🎯</span>
                   Priority Focus
                 </label>
-                <p className={styles.helpText}>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                   What aspect should we emphasize in your analysis?
                 </p>
                 <select
                   id="priorityFocus"
                   value={priorityFocus}
                   onChange={(e) => setPriorityFocus(e.target.value)}
-                  className={styles.select}
+                  className="input-field"
                 >
                   <option value="skills">💻 Technical Skills</option>
                   <option value="experience">👔 Experience Level</option>
@@ -418,24 +445,25 @@ function Settings() {
                 </select>
               </div>
 
-              <div className={styles.toggleGroup}>
-                <div className={styles.toggleItem}>
+              <div className="mb-6">
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div>
-                    <label>📖 Include Examples</label>
-                    <p className={styles.toggleDesc}>Show example improvements in recommendations</p>
+                    <label className="block font-semibold text-gray-900 dark:text-gray-100">📖 Include Examples</label>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Show example improvements in recommendations</p>
                   </div>
-                  <label className={styles.switch}>
+                  <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
                       checked={includeExamples}
                       onChange={(e) => setIncludeExamples(e.target.checked)}
+                      className="sr-only peer"
                     />
-                    <span className={styles.slider}></span>
+                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                   </label>
                 </div>
               </div>
 
-              <button onClick={handleSaveAnalysis} className={styles.primaryBtn}>
+              <button onClick={handleSaveAnalysis} className="btn-primary">
                 💾 Save Analysis Settings
               </button>
             </div>
@@ -444,52 +472,52 @@ function Settings() {
 
         {/* Data & Privacy Tab */}
         {activeTab === 'data' && (
-          <div className={styles.section}>
-            <h2>💾 Data & Privacy</h2>
-            <p className={styles.sectionDesc}>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">💾 Data & Privacy</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               Manage your data and privacy settings
             </p>
 
             {/* Storage Stats */}
-            <div className={styles.card}>
-              <h3>📊 Storage Statistics</h3>
-              <div className={styles.statsGrid}>
-                <div className={styles.statCard}>
-                  <div className={styles.statValue}>{analysisCount}</div>
-                  <div className={styles.statLabel}>Analyses Performed</div>
+            <div className="card p-6 mb-6">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">📊 Storage Statistics</h3>
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg">
+                  <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">{analysisCount}</div>
+                  <div className="text-gray-700 dark:text-gray-300 font-medium">Analyses Performed</div>
                 </div>
-                <div className={styles.statCard}>
-                  <div className={styles.statValue}>{storageUsed} KB</div>
-                  <div className={styles.statLabel}>Storage Used</div>
+                <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg">
+                  <div className="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2">{storageUsed} KB</div>
+                  <div className="text-gray-700 dark:text-gray-300 font-medium">Storage Used</div>
                 </div>
               </div>
             </div>
 
             {/* Data Management */}
-            <div className={styles.card}>
-              <h3>🗂️ Data Management</h3>
-              <div className={styles.actionGrid}>
-                <button onClick={handleExportData} className={styles.secondaryBtn}>
+            <div className="card p-6 mb-6">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">🗂️ Data Management</h3>
+              <div className="grid sm:grid-cols-3 gap-4">
+                <button onClick={handleExportData} className="btn-secondary">
                   📥 Export Settings
                 </button>
-                <button onClick={handleClearHistory} className={styles.warningBtn}>
+                <button onClick={handleClearHistory} className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg transition-colors">
                   🗑️ Clear History
                 </button>
-                <button onClick={handleResetSettings} className={styles.dangerBtn}>
+                <button onClick={handleResetSettings} className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors">
                   🔄 Reset Settings
                 </button>
               </div>
             </div>
 
             {/* Privacy Info */}
-            <div className={styles.infoBox}>
-              <h4>🔒 Privacy Notice</h4>
-              <ul>
-                <li>All data is stored locally in your browser</li>
-                <li>No personal information is sent to external servers</li>
-                <li>API keys (if provided) are stored securely in localStorage</li>
-                <li>Analysis data is not shared with third parties</li>
-                <li>You can delete your data anytime</li>
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
+              <h4 className="text-lg font-bold text-green-900 dark:text-green-100 mb-3">🔒 Privacy Notice</h4>
+              <ul className="space-y-2 text-sm text-green-800 dark:text-green-200">
+                <li>• All data is stored locally in your browser</li>
+                <li>• No personal information is sent to external servers</li>
+                <li>• API keys (if provided) are stored securely in localStorage</li>
+                <li>• Analysis data is not shared with third parties</li>
+                <li>• You can delete your data anytime</li>
               </ul>
             </div>
           </div>
@@ -497,73 +525,81 @@ function Settings() {
 
         {/* About Tab */}
         {activeTab === 'about' && (
-          <div className={styles.section}>
-            <h2>ℹ️ About Career Compass</h2>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">ℹ️ About Career Compass</h2>
             
-            <div className={styles.aboutCard}>
-              <div className={styles.appIcon}>🧭</div>
-              <h3>Career Compass</h3>
-              <p className={styles.version}>Version 1.0.0</p>
-              <p className={styles.tagline}>AI-Powered Resume Analysis & Career Guidance</p>
+            <div className="card p-8 mb-6 text-center">
+              <div className="text-6xl mb-4">🧭</div>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Career Compass</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-2">Version 1.0.0</p>
+              <p className="text-lg text-gray-700 dark:text-gray-300">AI-Powered Resume Analysis & Career Guidance</p>
             </div>
 
-            <div className={styles.card}>
-              <h3>✨ Features</h3>
-              <div className={styles.featureGrid}>
-                <div className={styles.feature}>
-                  <span className={styles.featureIcon}>📊</span>
-                  <span>Resume Analysis</span>
+            <div className="card p-6 mb-6">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">✨ Features</h3>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <span className="text-2xl">📊</span>
+                  <span className="text-gray-900 dark:text-gray-100">Resume Analysis</span>
                 </div>
-                <div className={styles.feature}>
-                  <span className={styles.featureIcon}>🎯</span>
-                  <span>Gap Identification</span>
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <span className="text-2xl">🎯</span>
+                  <span className="text-gray-900 dark:text-gray-100">Gap Identification</span>
                 </div>
-                <div className={styles.feature}>
-                  <span className={styles.featureIcon}>💡</span>
-                  <span>Smart Recommendations</span>
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <span className="text-2xl">💡</span>
+                  <span className="text-gray-900 dark:text-gray-100">Smart Recommendations</span>
                 </div>
-                <div className={styles.feature}>
-                  <span className={styles.featureIcon}>💬</span>
-                  <span>AI Career Chat</span>
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <span className="text-2xl">💬</span>
+                  <span className="text-gray-900 dark:text-gray-100">AI Career Chat</span>
                 </div>
-                <div className={styles.feature}>
-                  <span className={styles.featureIcon}>📈</span>
-                  <span>Match Scoring</span>
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <span className="text-2xl">📈</span>
+                  <span className="text-gray-900 dark:text-gray-100">Match Scoring</span>
                 </div>
-                <div className={styles.feature}>
-                  <span className={styles.featureIcon}>🔍</span>
-                  <span>Skill Analysis</span>
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <span className="text-2xl">🔍</span>
+                  <span className="text-gray-900 dark:text-gray-100">Skill Analysis</span>
                 </div>
               </div>
             </div>
 
-            <div className={styles.card}>
-              <h3>🛠️ Technology Stack</h3>
-              <div className={styles.techGrid}>
-                <span className={styles.techBadge}>React 18</span>
-                <span className={styles.techBadge}>Node.js</span>
-                <span className={styles.techBadge}>Express</span>
-                <span className={styles.techBadge}>Python</span>
-                <span className={styles.techBadge}>FastAPI</span>
-                <span className={styles.techBadge}>MongoDB</span>
-                <span className={styles.techBadge}>OpenAI</span>
-                <span className={styles.techBadge}>Vite</span>
+            <div className="card p-6 mb-6">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">🛠️ Technology Stack</h3>
+              <div className="flex flex-wrap gap-3">
+                <span className="px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-full font-medium">React 18</span>
+                <span className="px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-full font-medium">Node.js</span>
+                <span className="px-4 py-2 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded-full font-medium">Express</span>
+                <span className="px-4 py-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded-full font-medium">Python</span>
+                <span className="px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded-full font-medium">FastAPI</span>
+                <span className="px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200 rounded-full font-medium">MongoDB</span>
+                <span className="px-4 py-2 bg-pink-100 dark:bg-pink-900/30 text-pink-800 dark:text-pink-200 rounded-full font-medium">OpenAI</span>
+                <span className="px-4 py-2 bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200 rounded-full font-medium">Vite</span>
               </div>
             </div>
 
-            <div className={styles.card}>
-              <h3>📞 Support & Resources</h3>
-              <div className={styles.linkList}>
-                <a href="#" className={styles.link}>📖 Documentation</a>
-                <a href="#" className={styles.link}>🐛 Report a Bug</a>
-                <a href="#" className={styles.link}>💡 Request a Feature</a>
-                <a href="#" className={styles.link}>❓ FAQ</a>
+            <div className="card p-6 mb-6">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">📞 Support & Resources</h3>
+              <div className="space-y-3">
+                <a href="#" className="block p-4 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-blue-600 dark:text-blue-400 font-semibold">
+                  📖 Documentation
+                </a>
+                <a href="#" className="block p-4 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-blue-600 dark:text-blue-400 font-semibold">
+                  🐛 Report a Bug
+                </a>
+                <a href="#" className="block p-4 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-blue-600 dark:text-blue-400 font-semibold">
+                  💡 Request a Feature
+                </a>
+                <a href="#" className="block p-4 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-blue-600 dark:text-blue-400 font-semibold">
+                  ❓ FAQ
+                </a>
               </div>
             </div>
 
-            <div className={styles.footer}>
-              <p>Made with ❤️ for job seekers worldwide</p>
-              <p className={styles.copyright}>© 2025 Career Compass. All rights reserved.</p>
+            <div className="text-center text-gray-600 dark:text-gray-400">
+              <p className="mb-2">Made with ❤️ for job seekers worldwide</p>
+              <p className="text-sm">© 2025 Career Compass. All rights reserved.</p>
             </div>
           </div>
         )}

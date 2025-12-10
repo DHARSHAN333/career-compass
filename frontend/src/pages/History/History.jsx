@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getHistory } from '../../services/api.js';
-import styles from './History.module.css';
 
 function History() {
   const [analyses, setAnalyses] = useState([]);
@@ -45,35 +44,35 @@ function History() {
 
   if (loading) {
     return (
-      <div className={styles.history}>
-        <div className={styles.loader}>Loading history...</div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-xl text-gray-700 dark:text-gray-300">Loading history...</div>
       </div>
     );
   }
 
   return (
-    <div className={styles.history}>
-      <div className={styles.header}>
-        <h1>📚 Analysis History</h1>
-        <p className={styles.subtitle}>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto mb-12 text-center">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">📚 Analysis History</h1>
+        <p className="text-lg text-gray-600 dark:text-gray-400">
           Review your past resume analyses and track your progress
         </p>
       </div>
       
       {analyses.length === 0 ? (
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>📭</div>
-          <h2>No Analysis History</h2>
-          <p>You haven't performed any resume analyses yet.</p>
+        <div className="max-w-2xl mx-auto text-center py-16">
+          <div className="text-8xl mb-6">📭</div>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">No Analysis History</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-8">You haven't performed any resume analyses yet.</p>
           <button 
-            className={styles.startButton}
+            className="btn-primary text-lg"
             onClick={() => navigate('/')}
           >
             Start Your First Analysis
           </button>
         </div>
       ) : (
-        <div className={styles.historyGrid}>
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {analyses.map((analysis, index) => {
             const analysisId = analysis.analysisId || analysis._id || `analysis-${index}`;
             const matchScore = analysis.matchScore || analysis.score || 0;
@@ -82,21 +81,25 @@ function History() {
             return (
               <div 
                 key={analysisId} 
-                className={styles.historyCard}
+                className="card p-6 cursor-pointer hover:scale-105 transition-transform"
                 onClick={() => navigate(`/analysis/${analysisId}`)}
               >
-                <div className={styles.cardHeader}>
-                  <div className={styles.scoreCircle}>
-                    <span className={styles.scoreValue}>{matchScore}</span>
-                    <span className={styles.scoreLabel}>Match</span>
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex flex-col items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                    <span className="text-2xl font-bold">{matchScore}</span>
+                    <span className="text-xs">Match</span>
                   </div>
-                  <div className={styles.cardInfo}>
-                    <div className={styles.matchLevel}>
+                  <div className="flex-1 ml-4">
+                    <div className={`text-sm font-semibold mb-1 ${
+                      matchScore >= 80 ? 'text-green-600 dark:text-green-400' : 
+                      matchScore >= 60 ? 'text-yellow-600 dark:text-yellow-400' : 
+                      'text-red-600 dark:text-red-400'
+                    }`}>
                       {matchScore >= 80 ? '🟢 Strong Match' : 
                        matchScore >= 60 ? '🟡 Good Match' : 
                        '🔴 Needs Work'}
                     </div>
-                    <div className={styles.date}>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
                       {new Date(createdAt).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
@@ -106,32 +109,34 @@ function History() {
                   </div>
                 </div>
 
-                <div className={styles.cardStats}>
-                  <div className={styles.stat}>
-                    <span className={styles.statIcon}>✅</span>
-                    <span className={styles.statValue}>
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">✅</div>
+                    <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                       {analysis.skills?.matched?.length || analysis.matchedSkills?.length || 0}
-                    </span>
-                    <span className={styles.statLabel}>Matched</span>
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Matched</div>
                   </div>
-                  <div className={styles.stat}>
-                    <span className={styles.statIcon}>⚠️</span>
-                    <span className={styles.statValue}>
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">⚠️</div>
+                    <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                       {analysis.gaps?.length || 0}
-                    </span>
-                    <span className={styles.statLabel}>Gaps</span>
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Gaps</div>
                   </div>
-                  <div className={styles.stat}>
-                    <span className={styles.statIcon}>💡</span>
-                    <span className={styles.statValue}>
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">💡</div>
+                    <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                       {analysis.recommendations?.length || analysis.tips?.length || 0}
-                    </span>
-                    <span className={styles.statLabel}>Tips</span>
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Tips</div>
                   </div>
                 </div>
 
-                <div className={styles.cardFooter}>
-                  <span className={styles.viewLink}>View Details →</span>
+                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <span className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+                    View Details →
+                  </span>
                 </div>
               </div>
             );

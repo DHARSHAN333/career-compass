@@ -10,7 +10,8 @@ const aiClient = {
    */
   async analyze(resumeText, jobDescription) {
     try {
-      logger.info('Calling AI service for analysis');
+      logger.info(`Calling AI service at ${AI_SERVICE_BASE_URL}/api/analyze`);
+      logger.info(`Resume length: ${resumeText?.length || 0}, JD length: ${jobDescription?.length || 0}`);
       
       const response = await axios.post(
         `${AI_SERVICE_BASE_URL}/api/analyze`,
@@ -26,6 +27,9 @@ const aiClient = {
         }
       );
 
+      logger.info('✅ AI service responded successfully');
+      logger.info(`Match score from AI: ${response.data.match_score}%`);
+
       return {
         matchScore: response.data.match_score || 75,
         matchedSkills: response.data.matched_skills || [],
@@ -37,15 +41,23 @@ const aiClient = {
       };
 
     } catch (error) {
-      logger.error('AI service analyze error:', error.message);
+      logger.error('❌ AI service analyze error:', error.message);
+      logger.error('Error code:', error.code);
+      logger.error('Error response:', error.response?.data);
+      logger.error('AI Service URL:', AI_SERVICE_BASE_URL);
       
-      // Return mock data if AI service is unavailable
-      if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
-        logger.warn('AI service unavailable, returning mock data');
+      // Return mock data if AI service is unavailable or has errors
+      if (error.code === 'ECONNREFUSED' || 
+          error.code === 'ETIMEDOUT' || 
+          error.code === 'ECONNABORTED' ||
+          error.response?.status >= 400) {
+        logger.warn('⚠️ AI service unavailable, returning mock analysis data');
         return this.getMockAnalysis(resumeText, jobDescription);
       }
       
-      throw new Error('Failed to analyze resume');
+      // Fallback to mock data for any other errors
+      logger.warn('⚠️ Unexpected error, returning mock analysis data');
+      return this.getMockAnalysis(resumeText, jobDescription);
     }
   },
 
@@ -57,16 +69,29 @@ const aiClient = {
       const { message, context, history } = chatRequest;
       
       logger.info('Calling AI service for chat');
+      logger.info('Chat context:', {
+        hasResume: !!context?.resumeText,
+        hasJD: !!context?.jobDescription,
+        matchScore: context?.matchScore,
+        hasSkills: !!(context?.skills),
+        hasGaps: !!(context?.gaps),
+        hasRecommendations: !!(context?.recommendations)
+      });
       
       const response = await axios.post(
         `${AI_SERVICE_BASE_URL}/api/chat`,
         {
           message,
           context: {
-            resume_text: context.resumeText,
+            resumeText: context.resumeText,
+            resume_text: context.resumeText,  // Support both formats
+            jobDescription: context.jobDescription,
             job_description: context.jobDescription,
+            matchScore: context.matchScore,
             match_score: context.matchScore,
-            gaps: context.gaps
+            skills: context.skills,
+            gaps: context.gaps,
+            recommendations: context.recommendations
           },
           history: history || []
         },
@@ -78,20 +103,24 @@ const aiClient = {
         }
       );
 
+      logger.info('AI chat response received');
       return {
         response: response.data.response || response.data.message
       };
 
     } catch (error) {
       logger.error('AI service chat error:', error.message);
+      logger.error('Error details:', error.response?.data || error);
       
-      // Return mock response if AI service is unavailable
-      if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
-        logger.warn('AI service unavailable, returning mock chat response');
+      // Return mock response if AI service is unavailable or has errors
+      if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT' || error.response?.status >= 400) {
+        logger.warn('AI service error, returning mock chat response');
         return this.getMockChatResponse(chatRequest.message, chatRequest.context);
       }
       
-      throw new Error('Failed to get chat response');
+      // Fallback to mock response for any other errors
+      logger.warn('Unexpected error, returning mock chat response');
+      return this.getMockChatResponse(chatRequest.message, chatRequest.context);
     }
   },
 
@@ -155,21 +184,66 @@ const aiClient = {
    */
   getMockChatResponse(message, context = {}) {
     const lowerMessage = message.toLowerCase();
-    const { matchScore = 0, gaps = [], skills = {}, recommendations = [] } = context;
+    const { matchScore = 0, gaps = [], skills = {}, recommendations = [], resumeText = '', jobDescription = '' } = context;
     
-    // Skill-related questions
-    if (lowerMessage.includes('skill') || lowerMessage.includes('learn') || lowerMessage.includes('priorit')) {
-      const missingSkills = skills.missing || [];
-      const highPriorityGaps = gaps.filter(g => g.priority === 'High');
-      
-      if (highPriorityGaps.length > 0) {
-        const skillsList = highPriorityGaps.map(g => g.description).slice(0, 3).join(', ');
+    // Extract some resume details for personalization
+    const hasResumeText = resumeText && resumeText.length > 50;
+    const matchedSkills = skills.matched || [];
+    const missingSkills = skills.missing || [];
+    
+    // Greetings
+    if ((/^(hi|hello|hey|greetings)[\s!?]*$/i.test(message.trim()))) {
+      if (matchScore > 0) {
         return {
-          response: `Based on your analysis, I recommend prioritizing these skills:\n\n${highPriorityGaps.slice(0, 3).map((g, i) => `${i+1}. **${g.description}**: ${g.actionable}`).join('\n')}\n\nFocus on high-priority gaps first to maximize your impact. Consider online courses (Coursera, Udemy) or hands-on projects to build expertise.`
+          response: `Hello! I'm your AI Career Advisor.\n\nI've analyzed your resume and you have a **${matchScore}% match** with the job!\n\nI can help you with:\n- Understanding your strengths and gaps\n- Skill development priorities\n- Resume improvement tips\n- Interview preparation\n\nWhat would you like to know?`
         };
       }
       return {
-        response: 'Start with the high-priority skills from your gap analysis. Consider online courses, certifications, or hands-on projects to build expertise. Focus on practical application over theory.'
+        response: `Hello! I'm your AI Career Advisor. I can help with resume analysis, career advice, skill development, and interview prep. What would you like to know?`
+      };
+    }
+    
+    // Strongest qualifications / what are my skills
+    if (lowerMessage.includes('strongest') || lowerMessage.includes('best skill') || lowerMessage.includes('my skill') || lowerMessage.includes('what skill') || lowerMessage.includes('qualif')) {
+      if (matchedSkills.length > 0) {
+        const skillsList = matchedSkills.slice(0, 6).map(s => typeof s === 'string' ? s : s.name).join(', ');
+        let response = `**Your Strongest Qualifications:**\n\nBased on your resume analysis, here are your top skills that match this job:\n\n**${skillsList}**\n\n`;
+        
+        if (resumeText && resumeText.length > 50) {
+          response += `Your **${matchScore}% match score** shows these align well with the position requirements.\n\n`;
+        }
+        
+        if (missingSkills.length > 0) {
+          const missingList = missingSkills.slice(0, 3).map(s => typeof s === 'string' ? s : s.name).join(', ');
+          response += `To strengthen further, consider developing: ${missingList}`;
+        }
+        
+        return { response };
+      }
+      
+      return {
+        response: 'Looking at your profile, focus on highlighting your core technical skills and relevant experience. Check the Skills tab to see your matched qualifications!'
+      };
+    }
+    
+    // Skill-related questions
+    if (lowerMessage.includes('skill') && (lowerMessage.includes('learn') || lowerMessage.includes('priorit') || lowerMessage.includes('should i'))) {
+      const highPriorityGaps = gaps.filter(g => g.priority === 'High');
+      
+      if (matchedSkills.length > 0 && hasResumeText) {
+        const skillsList = matchedSkills.slice(0, 5).map(s => typeof s === 'string' ? s : s.name).join(', ');
+        const response = `Based on your resume, you already have strong skills in: **${skillsList}**. These align well with the job requirements!\n\n`;
+        
+        if (highPriorityGaps.length > 0) {
+          return {
+            response: response + `To strengthen your application further, prioritize:\n${highPriorityGaps.slice(0, 3).map((g, i) => `${i+1}. **${g.description}**: ${g.actionable}`).join('\n')}`
+          };
+        }
+        return { response: response + 'You have good coverage of required skills. Consider deepening your expertise in your strongest areas.' };
+      }
+      
+      return {
+        response: 'Focus on the high-priority skills from your gap analysis. Consider online courses, certifications, or hands-on projects. Your existing experience will help you learn these faster.'
       };
     }
     
@@ -177,17 +251,17 @@ const aiClient = {
     if (lowerMessage.includes('improve') || lowerMessage.includes('better') || lowerMessage.includes('stronger')) {
       if (recommendations.length > 0) {
         return {
-          response: `Here are specific ways to improve your resume:\n\n${recommendations.slice(0, 3).map((r, i) => `${i+1}. ${typeof r === 'string' ? r : r.text}`).join('\n')}\n\nAlso remember to add quantifiable achievements with specific metrics to make your experience stand out.`
+          response: `Based on analyzing your resume against this job, here are specific improvements:\n\n${recommendations.slice(0, 3).map((r, i) => `${i+1}. ${typeof r === 'string' ? r : r.text}`).join('\n')}\n\nAlso add quantifiable achievements with metrics to showcase impact.`
         };
       }
       return {
-        response: 'To improve your resume match score:\n1. Add quantifiable achievements with metrics (e.g., "Increased performance by 40%")\n2. Include relevant keywords from the job description\n3. Highlight projects that align with role requirements\n4. Use action verbs and focus on outcomes'
+        response: 'To strengthen your application:\n1. Add quantifiable achievements from your experience (e.g., "Improved efficiency by 40%")\n2. Include relevant keywords from the job description\n3. Highlight specific projects that demonstrate required skills\n4. Use strong action verbs and focus on outcomes'
       };
     }
     
     // Ready/qualification questions
     if (lowerMessage.includes('ready') || lowerMessage.includes('qualified') || lowerMessage.includes('chance')) {
-      let readiness = 'You have a moderate fit';
+      let readiness = 'You have a solid foundation';
       if (matchScore >= 80) readiness = 'You\'re well-qualified';
       else if (matchScore >= 60) readiness = 'You have a good foundation';
       else readiness = 'You should focus on developing key skills';

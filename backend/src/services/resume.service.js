@@ -1,15 +1,54 @@
 import logger from '../utils/logger.js';
+import axios from 'axios';
+import FormData from 'form-data';
+import config from '../config/index.js';
+
+const AI_SERVICE_BASE_URL = config.aiServiceUrl;
 
 const resumeService = {
   /**
-   * Extract text from resume (wrapper for various formats)
+   * Extract text from resume using AI service (supports PDF, DOCX, images with OCR)
    */
   async extractText(file) {
-    // In a real implementation, this would use libraries like pdf-parse, mammoth, etc.
-    logger.info('Extracting text from resume');
-    
-    // Placeholder implementation
-    return file.buffer.toString('utf-8');
+    try {
+      logger.info(`Extracting text from ${file.originalname} using AI service`);
+      
+      // Create form data
+      const formData = new FormData();
+      formData.append('file', file.buffer, {
+        filename: file.originalname,
+        contentType: file.mimetype
+      });
+      
+      // Send to AI service for text extraction
+      const response = await axios.post(
+        `${AI_SERVICE_BASE_URL}/api/extract`,
+        formData,
+        {
+          headers: formData.getHeaders(),
+          timeout: 60000, // 60 seconds for OCR processing
+          maxBodyLength: Infinity,
+          maxContentLength: Infinity
+        }
+      );
+      
+      if (!response.data || !response.data.text) {
+        throw new Error('No text extracted from file');
+      }
+      
+      logger.info('Text extraction successful');
+      return response.data.text;
+      
+    } catch (error) {
+      logger.error('Text extraction error:', error.message);
+      
+      // Fallback: try to read as plain text
+      if (file.mimetype === 'text/plain') {
+        return file.buffer.toString('utf-8');
+      }
+      
+      throw new Error('Failed to extract text from resume. Please ensure the file is a valid PDF, DOCX, or image file.');
+    }
   },
 
   /**

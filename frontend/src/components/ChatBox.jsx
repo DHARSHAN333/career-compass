@@ -1,23 +1,29 @@
 import { useState } from 'react';
 import { sendChatMessage } from '../services/api.js';
-import './ChatBox.css';
 
 function ChatBox({ analysisId, analysis }) {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hi! I\'m your AI career advisor. Ask me anything about improving your resume, developing skills, or preparing for this job role.'
+      content: `Hi! I'm your AI career advisor. I've analyzed your resume and the job description you're applying for. I can answer questions about:
+• Your specific skills and experience
+• How well you match this role
+• What skills you should develop
+• How to improve your resume
+• Interview preparation tips
+
+Ask me anything about your career or this job application!`
     }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
   const suggestedQuestions = [
-    "What skills should I prioritize learning?",
-    "How can I make my resume stronger?",
-    "Am I ready for this job?",
-    "What certifications would help me?",
-    "How should I highlight my projects?"
+    "What are my strongest qualifications for this role?",
+    "Which skills from my resume match the job requirements?",
+    "What experience should I highlight in my interview?",
+    "How can I address the missing skills in my application?",
+    "What projects from my resume are most relevant?"
   ];
 
   const handleSend = async (question) => {
@@ -30,7 +36,17 @@ function ChatBox({ analysisId, analysis }) {
     setLoading(true);
 
     try {
-      const response = await sendChatMessage(analysisId, messageToSend);
+      // Prepare context from analysis data
+      const context = {
+        resumeText: analysis.resumeText || '',
+        jobDescription: analysis.jobDescription || '',
+        matchScore: analysis.matchScore || analysis.score || 0,
+        skills: analysis.skills || { matched: [], missing: [] },
+        gaps: analysis.gaps || [],
+        recommendations: analysis.recommendations || []
+      };
+
+      const response = await sendChatMessage(analysisId, messageToSend, context);
       const assistantMessage = { role: 'assistant', content: response.response };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
@@ -50,32 +66,52 @@ function ChatBox({ analysisId, analysis }) {
   };
 
   return (
-    <div className="chat-box">
+    <div className="card p-6">
       {/* Chat Messages */}
-      <div className="chat-messages">
+      <div className="mb-6 space-y-4 max-h-96 overflow-y-auto">
         {messages.map((msg, index) => (
-          <div key={index} className={`message message-${msg.role}`}>
-            <div className="message-avatar">
+          <div key={index} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+            <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xl ${
+              msg.role === 'user' 
+                ? 'bg-blue-100 dark:bg-blue-900/30' 
+                : 'bg-purple-100 dark:bg-purple-900/30'
+            }`}>
               {msg.role === 'user' ? '👤' : '🤖'}
             </div>
-            <div className="message-content">
-              <div className="message-role">
+            <div className={`flex-1 ${msg.role === 'user' ? 'text-right' : ''}`}>
+              <div className={`text-xs font-semibold mb-1 ${
+                msg.role === 'user' 
+                  ? 'text-blue-600 dark:text-blue-400' 
+                  : 'text-purple-600 dark:text-purple-400'
+              }`}>
                 {msg.role === 'user' ? 'You' : 'AI Career Advisor'}
               </div>
-              <div className="message-text">{msg.content}</div>
+              <div className={`inline-block px-4 py-3 rounded-lg ${
+                msg.role === 'user'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+              }`}>
+                {msg.content}
+              </div>
             </div>
           </div>
         ))}
         
         {loading && (
-          <div className="message message-assistant">
-            <div className="message-avatar">🤖</div>
-            <div className="message-content">
-              <div className="message-role">AI Career Advisor</div>
-              <div className="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
+          <div className="flex gap-3">
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-xl">
+              🤖
+            </div>
+            <div>
+              <div className="text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+                AI Career Advisor
+              </div>
+              <div className="inline-block px-4 py-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <div className="flex gap-1">
+                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
+                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></span>
+                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                </div>
               </div>
             </div>
           </div>
@@ -84,13 +120,13 @@ function ChatBox({ analysisId, analysis }) {
 
       {/* Suggested Questions (only show if no user messages yet) */}
       {messages.filter(m => m.role === 'user').length === 0 && (
-        <div className="suggested-questions">
-          <p className="suggested-label">Try asking:</p>
-          <div className="question-buttons">
+        <div className="mb-6">
+          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Try asking:</p>
+          <div className="flex flex-wrap gap-2">
             {suggestedQuestions.map((question, index) => (
               <button
                 key={index}
-                className="question-btn"
+                className="px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg text-sm transition-colors disabled:opacity-50"
                 onClick={() => handleQuestionClick(question)}
                 disabled={loading}
               >
@@ -102,20 +138,20 @@ function ChatBox({ analysisId, analysis }) {
       )}
       
       {/* Input Area */}
-      <div className="chat-input-container">
+      <div className="flex gap-2">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && !loading && handleSend()}
           placeholder="Ask me anything about your career..."
-          className="chat-input"
+          className="input-field flex-1"
           disabled={loading}
         />
         <button
           onClick={() => handleSend()}
           disabled={loading || !input.trim()}
-          className="send-button"
+          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? '⏳' : '📤'}
         </button>
