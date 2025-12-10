@@ -4,6 +4,7 @@ import config from './config/index.js';
 import connectDB from './config/db.js';
 import analysisRoutes from './routes/analysis.routes.js';
 import userRoutes from './routes/user.routes.js';
+import authRoutes from './routes/auth.routes.js';
 import errorHandler from './middleware/errorHandler.js';
 import logger from './utils/logger.js';
 
@@ -29,6 +30,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/api/v1', analysisRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/auth', authRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

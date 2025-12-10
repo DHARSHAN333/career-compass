@@ -9,6 +9,20 @@ const api = axios.create({
   }
 });
 
+// Add request interceptor to include auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export const analyzeResume = async (resumeText, jobDescription) => {
   const response = await api.post('/analyze', {
     resumeText,
