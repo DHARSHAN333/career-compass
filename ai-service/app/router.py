@@ -11,50 +11,270 @@ from app.pipelines.extract_skills import extract_skills, find_matched_skills, fi
 from app.clients.llm_client import get_llm_response
 from app.utils.text_extractor import TextExtractor
 import os
+import re
 from typing import Optional
 
 router = APIRouter()
 
+# Helper functions for enhanced AI analysis
+async def analyze_gaps_with_ai(resume_text, job_description, missing_skills, matched_skills, detail_level):
+    """Use AI to identify detailed gaps between resume and job requirements"""
+    try:
+        prompt = f"""Analyze the gap between this candidate's resume and the job requirements.
+
+RESUME:
+{resume_text[:2000]}
+
+JOB DESCRIPTION:
+{job_description[:2000]}
+
+MATCHED SKILLS: {', '.join(matched_skills[:10])}
+MISSING SKILLS: {', '.join(missing_skills[:10])}
+
+Identify 3-5 specific gaps. For each gap, provide:
+1. Category (e.g., "Technical Skills", "Experience", "Certifications")
+2. Detailed description of what's missing
+3. Impact level (High/Medium/Low)
+
+Format as:
+Category | Description | Impact
+"""
+        
+        response = await get_llm_response(prompt, "")
+        
+        # Parse AI response into structured gaps
+        gaps = []
+        lines = response.split('\n')
+        for line in lines:
+            if '|' in line and not line.startswith('Category'):
+                parts = [p.strip() for p in line.split('|')]
+                if len(parts) >= 3:
+                    gaps.append(Gap(
+                        category=parts[0],
+                        description=parts[1],
+                        impact=parts[2]
+                    ))
+        
+        # Fallback to traditional gap analysis if AI parsing fails
+        if not gaps:
+            gaps = identify_gaps(resume_text, job_description, missing_skills)
+        
+        return gaps[:5]
+    except Exception as e:
+        print(f"AI gap analysis failed: {e}")
+        return identify_gaps(resume_text, job_description, missing_skills)
+
+async def generate_recommendations_with_ai(resume_text, job_description, gaps, missing_skills, matched_skills, score, detail_level, include_examples):
+    """Generate personalized recommendations using AI"""
+    try:
+        example_text = " with specific examples" if include_examples else ""
+        
+        prompt = f"""Generate {5 if detail_level == 'comprehensive' else 4 if detail_level == 'detailed' else 3} actionable recommendations to improve this resume for the job.
+
+CURRENT MATCH SCORE: {score}%
+MATCHED SKILLS: {', '.join(matched_skills[:8])}
+MISSING SKILLS: {', '.join(missing_skills[:8])}
+
+Top Gaps:
+{chr(10).join([f"- {g.description}" for g in gaps[:3]])}
+
+Provide specific, actionable recommendations{example_text}. Each recommendation should:
+1. Be clear and implementable
+2. Target the most critical gaps
+3. Include concrete actions{' with examples' if include_examples else ''}
+
+Format each as a single actionable sentence."""
+        
+        response = await get_llm_response(prompt, "")
+        
+        # Parse recommendations
+        recommendations = []
+        lines = [l.strip() for l in response.split('\n') if l.strip()]
+        for line in lines:
+            # Remove numbering and bullet points
+            text = re.sub(r'^[\d\.\-\*\)]+\s*', '', line).strip()
+            if text and len(text) > 20:
+                recommendations.append(Recommendation(text=text))
+        
+        # Fallback
+        if not recommendations:
+            recommendations = generate_tips(resume_text, job_description, gaps, missing_skills)
+        
+        return recommendations[:6]
+    except Exception as e:
+        print(f"AI recommendations failed: {e}")
+        return generate_tips(resume_text, job_description, gaps, missing_skills)
+
+async def generate_personalized_tip(score, gaps, missing_skills, matched_skills, priority_focus):
+    """Generate a personalized top tip based on priority focus"""
+    try:
+        focus_context = {
+            'skills': 'Focus on technical skills and competencies',
+            'experience': 'Focus on years of experience and past roles',
+            'balanced': 'Balance between skills, experience, and presentation',
+            'keywords': 'Focus on keywords and ATS optimization'
+        }.get(priority_focus, 'Provide balanced advice')
+        
+        prompt = f"""Generate ONE concise, actionable tip (1-2 sentences) for this candidate.
+
+CONTEXT:
+- Match Score: {score}%
+- Matched Skills: {len(matched_skills)}
+- Missing Skills: {len(missing_skills)}
+- Top Missing: {', '.join(missing_skills[:3])}
+- Priority: {focus_context}
+
+Provide the SINGLE MOST IMPORTANT action they should take next. Be specific and actionable."""
+        
+        tip = await get_llm_response(prompt, "")
+        return tip.strip() if tip else generate_top_tip(score, gaps, missing_skills)
+    except Exception as e:
+        print(f"AI tip generation failed: {e}")
+        return generate_top_tip(score, gaps, missing_skills)
+
+def calculate_skill_relevance(skill, job_description, base_score):
+    """Calculate how relevant a skill is to the job"""
+    jd_lower = job_description.lower()
+    skill_lower = skill.lower()
+    
+    # Count occurrences
+    occurrences = jd_lower.count(skill_lower)
+    
+    # Check if in title or early in description
+    first_200 = jd_lower[:200]
+    in_title = skill_lower in first_200
+    
+    relevance = base_score
+    if in_title:
+        relevance = min(relevance + 0.1, 1.0)
+    if occurrences > 1:
+        relevance = min(relevance + (0.02 * occurrences), 1.0)
+    
+    return round(relevance, 2)
+
+def determine_skill_priority(skill, job_description, index):
+    """Determine priority of a missing skill"""
+    jd_lower = job_description.lower()
+    skill_lower = skill.lower()
+    
+    # High priority if mentioned multiple times or early
+    occurrences = jd_lower.count(skill_lower)
+    first_500 = jd_lower[:500]
+    
+    if skill_lower in first_500 or occurrences >= 2:
+        return "High"
+    elif index < 5:
+        return "High"
+    elif index < 8:
+        return "Medium"
+    else:
+        return "Low"
+
+def generate_skill_suggestion(skill, job_description, include_examples):
+    """Generate a specific suggestion for learning a skill"""
+    skill_lower = skill.lower()
+    
+    # Contextual suggestions based on skill type
+    learning_resources = {
+        'python': 'Complete Python courses on Coursera or build projects with Django/Flask',
+        'javascript': 'Build interactive projects and learn modern frameworks like React',
+        'react': 'Create portfolio projects and contribute to open-source React applications',
+        'aws': 'Get AWS Certified Solutions Architect certification and practice with free tier',
+        'docker': 'Containerize your existing projects and learn Kubernetes basics',
+        'kubernetes': 'Deploy applications on K8s and get CKA certification',
+        'machine learning': 'Complete Andrew Ng\'s ML course and build ML projects',
+        'sql': 'Practice on LeetCode SQL problems and work with real databases',
+    }
+    
+    for key, suggestion in learning_resources.items():
+        if key in skill_lower:
+            return suggestion if include_examples else f"Learn {skill} through structured courses and hands-on projects"
+    
+    # Generic but specific suggestion
+    if include_examples:
+        return f"Master {skill} by: 1) Taking specialized courses, 2) Building portfolio projects, 3) Contributing to open-source"
+    else:
+        return f"Develop proficiency in {skill} through courses and practical application"
+
 @router.post("/analyze", response_model=AnalyzeResponse)
 async def analyze_resume(request: AnalyzeRequest):
     """
-    Analyze resume against job description
+    Analyze resume against job description with AI-powered comprehensive matching
     """
     try:
-        # Extract skills from both documents
+        # Extract analysis configuration
+        detail_level = getattr(request, 'detail_level', 'detailed')
+        priority_focus = getattr(request, 'priority_focus', 'balanced')
+        include_examples = getattr(request, 'include_examples', True)
+        
+        print(f"\n[Analysis] Starting with config: detail={detail_level}, focus={priority_focus}")
+        
+        # Use AI to extract skills comprehensively
         resume_skills = extract_skills(request.resume_text)
         jd_skills = extract_skills(request.job_description)
         
-        # Find matched and missing skills
+        print(f"[Analysis] Resume skills found: {len(resume_skills)}")
+        print(f"[Analysis] JD skills required: {len(jd_skills)}")
+        
+        # Find matched and missing skills with fuzzy matching
         matched = find_matched_skills(resume_skills, jd_skills)
         missing = find_missing_skills(resume_skills, jd_skills)
         
-        # Calculate match score
+        print(f"[Analysis] Matched: {len(matched)}, Missing: {len(missing)}")
+        
+        # Calculate comprehensive match score
         score = calculate_match_score(matched, jd_skills, request.resume_text, request.job_description)
         
-        # Identify gaps
-        gaps = identify_gaps(request.resume_text, request.job_description, missing)
+        # Use AI to analyze gaps with context
+        gaps = await analyze_gaps_with_ai(
+            request.resume_text, 
+            request.job_description, 
+            missing, 
+            matched,
+            detail_level
+        )
         
-        # Generate recommendations
-        recommendations = generate_tips(request.resume_text, request.job_description, gaps, missing)
+        # Generate AI-powered recommendations
+        recommendations = await generate_recommendations_with_ai(
+            request.resume_text,
+            request.job_description,
+            gaps,
+            missing,
+            matched,
+            score,
+            detail_level,
+            include_examples
+        )
         
-        # Generate top tip
-        top_tip = generate_top_tip(score, gaps, missing)
+        # Generate personalized top tip
+        top_tip = await generate_personalized_tip(
+            score, 
+            gaps, 
+            missing, 
+            matched,
+            priority_focus
+        )
         
-        # Convert to response format
+        # Convert to response format with relevance scoring
         matched_skills = [
-            SkillMatch(name=skill, relevance=0.85 + (i * 0.03))
-            for i, skill in enumerate(matched[:10])
+            SkillMatch(
+                name=skill, 
+                relevance=calculate_skill_relevance(skill, request.job_description, 0.85 + (i * 0.02))
+            )
+            for i, skill in enumerate(matched[:15])
         ]
         
+        # Prioritize missing skills by importance
         missing_skills = [
             MissingSkill(
                 name=skill,
-                priority="High" if i < 3 else "Medium",
-                suggestion=f"Consider learning {skill} through online courses or hands-on projects"
+                priority=determine_skill_priority(skill, request.job_description, i),
+                suggestion=generate_skill_suggestion(skill, request.job_description, include_examples)
             )
-            for i, skill in enumerate(missing[:8])
+            for i, skill in enumerate(missing[:10])
         ]
+        
+        print(f"[Analysis] Complete! Score: {score}%")
         
         return AnalyzeResponse(
             match_score=score,
@@ -63,10 +283,12 @@ async def analyze_resume(request: AnalyzeRequest):
             gaps=gaps,
             recommendations=recommendations,
             top_tip=top_tip,
-            model=os.getenv("LLM_MODEL", "gpt-3.5-turbo")
+            model=os.getenv("LLM_MODEL", "gemini-2.0-flash")
         )
     except Exception as e:
         print(f"Analysis error: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 @router.post("/chat", response_model=ChatResponse)

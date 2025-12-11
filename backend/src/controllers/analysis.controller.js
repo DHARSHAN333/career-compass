@@ -5,7 +5,15 @@ import logger from '../utils/logger.js';
 
 export const analyzeResume = async (req, res, next) => {
   try {
-    const { resumeText, jobDescription } = req.body;
+    const { 
+      resumeText, 
+      jobDescription, 
+      userApiKey, 
+      userProvider, 
+      userModel, 
+      autoSave = true,
+      analysisSettings = {} 
+    } = req.body;
     const userId = req.user._id; // Get from authenticated user
 
     if (!resumeText || !jobDescription) {
@@ -15,11 +23,37 @@ export const analyzeResume = async (req, res, next) => {
       });
     }
 
-    logger.info('Starting resume analysis');
+    // Extract analysis settings with defaults
+    const { 
+      detailLevel = 'detailed',
+      includeExamples = true,
+      priorityFocus = 'balanced'
+    } = analysisSettings;
+
+    logger.info('Starting resume analysis', { 
+      autoSave, 
+      detailLevel, 
+      includeExamples, 
+      priorityFocus 
+    });
+
+    // Prepare user config if provided
+    const userConfig = userApiKey ? {
+      apiKey: userApiKey,
+      provider: userProvider || 'gemini',
+      model: userModel
+    } : undefined;
+
+    // Prepare analysis configuration
+    const analysisConfig = {
+      detailLevel,
+      includeExamples,
+      priorityFocus
+    };
 
     // Call AI service for analysis
     const startTime = Date.now();
-    const analysisResult = await aiClient.analyze(resumeText, jobDescription);
+    const analysisResult = await aiClient.analyze(resumeText, jobDescription, userConfig, analysisConfig);
     const processingTime = Date.now() - startTime;
 
     const analysisData = {
@@ -38,31 +72,43 @@ export const analyzeResume = async (req, res, next) => {
       metadata: {
         processingTime,
         aiModel: analysisResult.model || 'gpt-3.5-turbo',
-        version: '1.0'
+        version: '1.0',
+        analysisSettings: {
+          detailLevel,
+          includeExamples,
+          priorityFocus
+        }
       }
     };
 
     let analysis;
-    let analysisId = 'mock-' + Date.now();
+    let analysisId = 'temp-' + Date.now();
+    let saved = false;
 
-    // Try to save to database if connected
-    if (mongoose.connection.readyState === 1) {
+    // Only save to database if autoSave is enabled AND database is connected
+    if (autoSave && mongoose.connection.readyState === 1) {
       try {
         analysis = await Analysis.create(analysisData);
         analysisId = analysis._id;
-        logger.info(`Analysis created successfully: ${analysisId}`);
+        saved = true;
+        logger.info(`Analysis saved to database: ${analysisId}`);
       } catch (dbError) {
-        logger.warn('Failed to save to database, using in-memory mode:', dbError.message);
+        logger.warn('Failed to save to database:', dbError.message);
         analysis = { ...analysisData, _id: analysisId, createdAt: new Date() };
       }
     } else {
-      logger.info('Database not connected, returning analysis without persistence');
+      if (!autoSave) {
+        logger.info('AutoSave disabled - analysis not persisted to database');
+      } else {
+        logger.info('Database not connected - returning analysis without persistence');
+      }
       analysis = { ...analysisData, _id: analysisId, createdAt: new Date() };
     }
 
     res.status(201).json({
       success: true,
       analysisId: analysisId,
+      saved: saved,
       matchScore: analysisData.matchScore,
       skills: analysisData.skills,
       gaps: analysisData.gaps,
@@ -79,7 +125,7 @@ export const analyzeResume = async (req, res, next) => {
 
 export const chatWithAnalysis = async (req, res, next) => {
   try {
-    const { analysisId, message, context, history } = req.body;
+    const { analysisId, message, context, history, userApiKey, userProvider, userModel } = req.body;
 
     if (!message) {
       return res.status(400).json({
@@ -122,14 +168,23 @@ export const chatWithAnalysis = async (req, res, next) => {
       hasJobDescription: !!analysisContext.jobDescription,
       matchScore: analysisContext.matchScore,
       resumeLength: analysisContext.resumeText?.length || 0,
-      historyLength: history?.length || 0
+      historyLength: history?.length || 0,
+      hasUserKey: !!userApiKey
     });
 
-    // Call AI service for chat with actual context and history
+    // Prepare user config if provided
+    const userConfig = userApiKey ? {
+      apiKey: userApiKey,
+      provider: userProvider || 'gemini',
+      model: userModel
+    } : undefined;
+
+    // Call AI service for chat with actual context, history, and user config
     const chatResponse = await aiClient.chat({
       message,
       context: analysisContext,
-      history: history || []
+      history: history || [],
+      userConfig
     });
 
     res.json({ 

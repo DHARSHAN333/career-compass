@@ -30,9 +30,55 @@ TECH_SKILLS = {
 }
 
 def extract_skills_with_ai(text: str) -> List[str]:
-    """Extract skills using Gemini AI"""
+    """Extract skills using Gemini AI with comprehensive prompt"""
     try:
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        # Use the configured model from environment
+        model_name = os.getenv("LLM_MODEL", "gemini-2.0-flash-exp")
+        model = genai.GenerativeModel(model_name)
+        
+        prompt = f"""Extract ALL technical and soft skills from this text. Be extremely thorough and consistent.
+
+Include:
+- Programming languages (Python, Java, JavaScript, etc.)
+- Frameworks & libraries (React, Node.js, Django, etc.)
+- Tools & platforms (Git, Docker, AWS, Jenkins, etc.)
+- Databases (MongoDB, MySQL, PostgreSQL, etc.)
+- Methodologies (Agile, Scrum, DevOps, CI/CD, etc.)
+- Soft skills (Leadership, Communication, Problem-solving, etc.)
+- Domain expertise (Machine Learning, Data Analysis, Cloud Computing, etc.)
+
+IMPORTANT: Extract skills EXACTLY as they appear. Use standard capitalization (Python, not PYTHON).
+
+Text:
+{text[:4000]}
+
+Return a comma-separated list of 20-50 skills in this exact format:
+Python, JavaScript, React, Node.js, MongoDB, AWS, Docker, Git, Agile, Leadership"""
+
+        response = model.generate_content(prompt)
+        skills_text = response.text.strip()
+        
+        # Parse and clean the response
+        skills = []
+        for s in skills_text.split(','):
+            skill = s.strip()
+            # Remove quotes, bullets, numbering  
+            skill = re.sub(r'^["\'*\-\d.)\]]+\s*', '', skill)
+            skill = re.sub(r'["\'*]+$', '', skill)
+            
+            if skill and len(skill) > 1 and len(skill) < 50:
+                # Capitalize properly
+                if skill.isupper() and len(skill) <= 6:  # Acronyms
+                    skills.append(skill)
+                else:
+                    skills.append(skill.title())
+        
+        print(f"AI extracted {len(skills)} skills")
+        return list(set(skills))  # Remove duplicates
+        
+    except Exception as e:
+        print(f"AI skill extraction error: {e}")
+        return []
         
         prompt = f"""Extract ALL technical skills, tools, technologies, frameworks, languages, and soft skills from the following text.
 Return ONLY a comma-separated list of skills, nothing else.

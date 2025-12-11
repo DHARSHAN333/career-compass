@@ -8,17 +8,32 @@ const aiClient = {
   /**
    * Analyze resume against job description
    */
-  async analyze(resumeText, jobDescription) {
+  async analyze(resumeText, jobDescription, userConfig = {}, analysisConfig = {}) {
     try {
       logger.info(`Calling AI service at ${AI_SERVICE_BASE_URL}/api/analyze`);
       logger.info(`Resume length: ${resumeText?.length || 0}, JD length: ${jobDescription?.length || 0}`);
+      logger.info(`Analysis settings:`, analysisConfig);
+      if (userConfig.apiKey) logger.info('Using user-provided API key');
+      
+      const requestBody = {
+        resume_text: resumeText,
+        job_description: jobDescription,
+        // Include analysis settings
+        detail_level: analysisConfig.detailLevel || 'detailed',
+        include_examples: analysisConfig.includeExamples !== false,
+        priority_focus: analysisConfig.priorityFocus || 'balanced'
+      };
+
+      // Add user config if provided
+      if (userConfig.apiKey) {
+        requestBody.user_api_key = userConfig.apiKey;
+        requestBody.user_provider = userConfig.provider || 'gemini';
+        requestBody.user_model = userConfig.model;
+      }
       
       const response = await axios.post(
         `${AI_SERVICE_BASE_URL}/api/analyze`,
-        {
-          resume_text: resumeText,
-          job_description: jobDescription
-        },
+        requestBody,
         {
           timeout: 30000,
           headers: {
@@ -66,7 +81,7 @@ const aiClient = {
    */
   async chat(chatRequest) {
     try {
-      const { message, context, history } = chatRequest;
+      const { message, context, history, userConfig } = chatRequest;
       
       logger.info('Calling AI service for chat');
       logger.info('Chat context:', {
@@ -77,24 +92,33 @@ const aiClient = {
         hasGaps: !!(context?.gaps),
         hasRecommendations: !!(context?.recommendations)
       });
+
+      const requestBody = {
+        message,
+        context: {
+          resumeText: context.resumeText,
+          resume_text: context.resumeText,  // Support both formats
+          jobDescription: context.jobDescription,
+          job_description: context.jobDescription,
+          matchScore: context.matchScore,
+          match_score: context.matchScore,
+          skills: context.skills,
+          gaps: context.gaps,
+          recommendations: context.recommendations
+        },
+        history: history || []
+      };
+
+      // Add user config if provided
+      if (userConfig?.apiKey) {
+        requestBody.user_api_key = userConfig.apiKey;
+        requestBody.user_provider = userConfig.provider || 'gemini';
+        requestBody.user_model = userConfig.model;
+      }
       
       const response = await axios.post(
         `${AI_SERVICE_BASE_URL}/api/chat`,
-        {
-          message,
-          context: {
-            resumeText: context.resumeText,
-            resume_text: context.resumeText,  // Support both formats
-            jobDescription: context.jobDescription,
-            job_description: context.jobDescription,
-            matchScore: context.matchScore,
-            match_score: context.matchScore,
-            skills: context.skills,
-            gaps: context.gaps,
-            recommendations: context.recommendations
-          },
-          history: history || []
-        },
+        requestBody,
         {
           timeout: 15000,
           headers: {

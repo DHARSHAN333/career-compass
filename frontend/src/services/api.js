@@ -24,10 +24,39 @@ api.interceptors.request.use(
 );
 
 export const analyzeResume = async (resumeText, jobDescription) => {
-  const response = await api.post('/analyze', {
+  // Get user AI config from localStorage
+  const useCustomAI = localStorage.getItem('useCustomAI') === 'true';
+  const userApiKey = useCustomAI ? localStorage.getItem('userApiKey') : null;
+  const userProvider = useCustomAI ? localStorage.getItem('aiProvider') : null;
+  const userModel = useCustomAI ? localStorage.getItem('userModel') : null;
+  
+  // Get autoSave preference
+  const autoSave = localStorage.getItem('autoSave') !== 'false'; // default true
+  
+  // Get analysis settings from localStorage
+  const detailLevel = localStorage.getItem('detailLevel') || 'detailed';
+  const includeExamples = localStorage.getItem('includeExamples') !== 'false'; // default true
+  const priorityFocus = localStorage.getItem('priorityFocus') || 'balanced';
+
+  const requestBody = {
     resumeText,
-    jobDescription
-  });
+    jobDescription,
+    autoSave, // Include autoSave setting
+    analysisSettings: {
+      detailLevel,
+      includeExamples,
+      priorityFocus
+    }
+  };
+
+  // Add user config if they're using custom AI
+  if (useCustomAI && userApiKey) {
+    requestBody.userApiKey = userApiKey;
+    requestBody.userProvider = userProvider;
+    requestBody.userModel = userModel;
+  }
+
+  const response = await api.post('/analyze', requestBody);
   return response.data;
 };
 
@@ -42,12 +71,27 @@ export const getHistory = async () => {
 };
 
 export const sendChatMessage = async (analysisId, message, context, history = []) => {
-  const response = await api.post('/chat', {
+  // Get user AI config from localStorage
+  const useCustomAI = localStorage.getItem('useCustomAI') === 'true';
+  const userApiKey = useCustomAI ? localStorage.getItem('userApiKey') : null;
+  const userProvider = useCustomAI ? localStorage.getItem('aiProvider') : null;
+  const userModel = useCustomAI ? localStorage.getItem('userModel') : null;
+
+  const requestBody = {
     analysisId,
     message,
     context,
     history
-  });
+  };
+
+  // Add user config if they're using custom AI
+  if (useCustomAI && userApiKey) {
+    requestBody.userApiKey = userApiKey;
+    requestBody.userProvider = userProvider;
+    requestBody.userModel = userModel;
+  }
+
+  const response = await api.post('/chat', requestBody);
   return response.data;
 };
 
