@@ -5,7 +5,8 @@ import logger from '../utils/logger.js';
 
 export const analyzeResume = async (req, res, next) => {
   try {
-    const { resumeText, jobDescription, userId } = req.body;
+    const { resumeText, jobDescription } = req.body;
+    const userId = req.user._id; // Get from authenticated user
 
     if (!resumeText || !jobDescription) {
       return res.status(400).json({
@@ -22,7 +23,7 @@ export const analyzeResume = async (req, res, next) => {
     const processingTime = Date.now() - startTime;
 
     const analysisData = {
-      userId: userId || 'anonymous',
+      userId: userId,
       jobDescription,
       resumeText,
       matchScore: analysisResult.matchScore || 75,
@@ -78,7 +79,7 @@ export const analyzeResume = async (req, res, next) => {
 
 export const chatWithAnalysis = async (req, res, next) => {
   try {
-    const { analysisId, message, context } = req.body;
+    const { analysisId, message, context, history } = req.body;
 
     if (!message) {
       return res.status(400).json({
@@ -116,18 +117,19 @@ export const chatWithAnalysis = async (req, res, next) => {
       }
     }
 
-    logger.info('Chat context:', {
+    logger.info('Chat request:', {
       hasResumeText: !!analysisContext.resumeText,
       hasJobDescription: !!analysisContext.jobDescription,
       matchScore: analysisContext.matchScore,
-      resumeLength: analysisContext.resumeText?.length || 0
+      resumeLength: analysisContext.resumeText?.length || 0,
+      historyLength: history?.length || 0
     });
 
-    // Call AI service for chat with actual context
+    // Call AI service for chat with actual context and history
     const chatResponse = await aiClient.chat({
       message,
       context: analysisContext,
-      history: []
+      history: history || []
     });
 
     res.json({ 
@@ -145,6 +147,7 @@ export const chatWithAnalysis = async (req, res, next) => {
 export const getAnalysisById = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const userId = req.user._id; // Get from authenticated user
     
     if (mongoose.connection.readyState !== 1) {
       return res.status(503).json({ 
@@ -153,7 +156,8 @@ export const getAnalysisById = async (req, res, next) => {
       });
     }
 
-    const analysis = await Analysis.findById(id);
+    // Only allow users to access their own analyses
+    const analysis = await Analysis.findOne({ _id: id, userId });
 
     if (!analysis) {
       return res.status(404).json({ 
@@ -175,7 +179,7 @@ export const getAnalysisById = async (req, res, next) => {
 
 export const getUserAnalyses = async (req, res, next) => {
   try {
-    const { userId } = req.query;
+    const userId = req.user._id; // Get from authenticated user
 
     if (mongoose.connection.readyState !== 1) {
       return res.json({
@@ -186,9 +190,7 @@ export const getUserAnalyses = async (req, res, next) => {
       });
     }
 
-    const analyses = await Analysis.find(
-      userId ? { userId } : {}
-    )
+    const analyses = await Analysis.find({ userId })
       .sort({ createdAt: -1 })
       .limit(50)
       .select('-resumeText -jobDescription -chatHistory');

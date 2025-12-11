@@ -46,7 +46,13 @@ Ask me anything about your career or this job application!`
         recommendations: analysis.recommendations || []
       };
 
-      const response = await sendChatMessage(analysisId, messageToSend, context);
+      // Build chat history (exclude system message, only user/assistant exchanges)
+      const chatHistory = messages
+        .filter(m => m.role === 'user' || m.role === 'assistant')
+        .slice(1) // Skip initial welcome message
+        .map(m => ({ role: m.role, content: m.content }));
+
+      const response = await sendChatMessage(analysisId, messageToSend, context, chatHistory);
       const assistantMessage = { role: 'assistant', content: response.response };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {

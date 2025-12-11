@@ -2,8 +2,9 @@ import mongoose from 'mongoose';
 
 const analysisSchema = new mongoose.Schema({
   userId: {
-    type: String,
-    default: 'anonymous'
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
   jobDescription: {
     type: String,
