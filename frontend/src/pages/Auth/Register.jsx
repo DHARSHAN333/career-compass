@@ -85,33 +85,28 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4 py-12">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white">
-            Create your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            Already have an account?{' '}
-            <Link
-              to="/login"
-              className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
-            >
-              Sign in
-            </Link>
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950 flex items-center justify-center px-4 py-12">
+      <div className="max-w-md w-full">
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-10">
+          <div className="text-center mb-8">
+            <div className="text-6xl mb-4">🚀</div>
+            <h2 className="text-4xl font-extrabold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+              Get Started
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Create your Career Compass account
+            </p>
+          </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {errors.general && (
-            <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
-              <p className="text-sm text-red-800 dark:text-red-400">{errors.general}</p>
-            </div>
-          )}
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            {errors.general && (
+              <div className="rounded-xl bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/30 p-4 border-l-4 border-red-600">
+                <p className="text-sm font-semibold text-red-900 dark:text-red-400">{errors.general}</p>
+              </div>
+            )}
 
-          <div className="space-y-4">
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label htmlFor="username" className="block text-sm font-bold text-gray-900 dark:text-white mb-2">
                 Username
               </label>
               <input
@@ -121,16 +116,16 @@ export default function Register() {
                 required
                 value={formData.username}
                 onChange={handleChange}
-                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="appearance-none rounded-xl relative block w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
                 placeholder="Choose a username"
               />
               {errors.username && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.username}</p>
+                <p className="mt-2 text-sm font-semibold text-red-600 dark:text-red-400">{errors.username}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label htmlFor="email" className="block text-sm font-bold text-gray-900 dark:text-white mb-2">
                 Email Address
               </label>
               <input
@@ -140,16 +135,16 @@ export default function Register() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter your email"
+                className="appearance-none rounded-xl relative block w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                placeholder="your.email@example.com"
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>
+                <p className="mt-2 text-sm font-semibold text-red-600 dark:text-red-400">{errors.email}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="contactNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label htmlFor="contactNumber" className="block text-sm font-bold text-gray-900 dark:text-white mb-2">
                 Contact Number
               </label>
               <input
@@ -159,17 +154,17 @@ export default function Register() {
                 required
                 value={formData.contactNumber}
                 onChange={handleChange}
-                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="appearance-none rounded-xl relative block w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
                 placeholder="10-digit phone number"
                 maxLength="10"
               />
               {errors.contactNumber && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.contactNumber}</p>
+                <p className="mt-2 text-sm font-semibold text-red-600 dark:text-red-400">{errors.contactNumber}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label htmlFor="password" className="block text-sm font-bold text-gray-900 dark:text-white mb-2">
                 Password
               </label>
               <input
@@ -179,16 +174,16 @@ export default function Register() {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="appearance-none rounded-xl relative block w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
                 placeholder="At least 6 characters"
               />
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>
+                <p className="mt-2 text-sm font-semibold text-red-600 dark:text-red-400">{errors.password}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label htmlFor="confirmPassword" className="block text-sm font-bold text-gray-900 dark:text-white mb-2">
                 Confirm Password
               </label>
               <input
@@ -198,25 +193,45 @@ export default function Register() {
                 required
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="appearance-none rounded-xl relative block w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
                 placeholder="Re-enter your password"
               />
               {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.confirmPassword}</p>
+                <p className="mt-2 text-sm font-semibold text-red-600 dark:text-red-400">{errors.confirmPassword}</p>
               )}
             </div>
-          </div>
 
-          <div>
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="group relative w-full flex justify-center py-4 px-6 text-lg font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 rounded-xl shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 mt-6"
             >
-              {loading ? 'Creating account...' : 'Create account'}
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Creating account...
+                </span>
+              ) : (
+                'Create Account'
+              )}
             </button>
-          </div>
-        </form>
+
+            <div className="text-center mt-6">
+              <p className="text-gray-600 dark:text-gray-400">
+                Already have an account?{' '}
+                <Link
+                  to="/login"
+                  className="font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  Sign in here
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -61,92 +61,106 @@ function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950">
       {/* Hero Section */}
-      <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 text-center">
-        <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-          Career Compass
-        </h1>
-        <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-          AI-Powered Resume Analysis
-        </h2>
-        <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8">
-          Discover how well your resume matches job requirements with our advanced AI technology.
-          Get instant feedback, gap analysis, and personalized recommendations.
-        </p>
-        {!isAuthenticated && (
-          <div className="flex gap-4 justify-center mb-12">
-            <Link
-              to="/register"
-              className="px-8 py-3 text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-lg transition-all transform hover:scale-105"
-            >
-              Get Started Free
-            </Link>
-            <Link
-              to="/login"
-              className="px-8 py-3 text-lg font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg shadow-lg transition-all"
-            >
-              Sign In
-            </Link>
+      <div className="max-w-7xl mx-auto py-20 px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center justify-center opacity-10">
+            <div className="w-96 h-96 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur-3xl"></div>
           </div>
-        )}
+          <div className="relative">
+            <h1 className="text-7xl font-extrabold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent mb-6 tracking-tight">
+              Career Compass
+            </h1>
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">
+              AI-Powered Resume Intelligence
+            </h2>
+            <p className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto mb-10 leading-relaxed">
+              Transform your job search with cutting-edge AI analysis. Get instant match scores,
+              comprehensive skill assessments, and strategic recommendations tailored to your career goals.
+            </p>
+            {!isAuthenticated && (
+              <div className="flex gap-5 justify-center mb-16">
+                <Link
+                  to="/register"
+                  className="group px-10 py-4 text-lg font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-2xl transition-all transform hover:scale-105 hover:shadow-blue-500/50"
+                >
+                  <span className="flex items-center gap-2">
+                    Get Started Free
+                    <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                  </span>
+                </Link>
+                <Link
+                  to="/login"
+                  className="px-10 py-4 text-lg font-bold text-gray-800 dark:text-white bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl shadow-xl transition-all border-2 border-gray-200 dark:border-gray-700"
+                >
+                  Sign In
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Analysis Section - Only show if authenticated */}
       {isAuthenticated && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-red-800 dark:text-red-200 flex items-center gap-2">
-                <span>⚠️</span>
+            <div className="mb-8 p-5 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/30 border-l-4 border-red-600 rounded-xl shadow-lg">
+              <p className="text-red-900 dark:text-red-200 flex items-center gap-3 font-semibold">
+                <span className="text-2xl">⚠️</span>
                 <span>{error}</span>
               </p>
             </div>
           )}
 
           {/* Input Container */}
-          <div className="grid md:grid-cols-2 gap-8 mb-8">
+          <div className="grid lg:grid-cols-2 gap-8 mb-10">
             {/* Job Description Section */}
-            <div className="card p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                  <span>📋</span>
-                  <span>Step 1: Paste Job Description</span>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 hover:shadow-2xl transition-all">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                  <span className="text-3xl">📋</span>
+                  <span>Job Description</span>
                 </h3>
-                <span className="badge badge-primary">Required</span>
+                <span className="px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full">STEP 1</span>
               </div>
               <PasteJD value={jobDescription} onChange={setJobDescription} />
               {jobDescription && (
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  {jobDescription.length} characters
-                </p>
+                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <p className="text-sm font-semibold text-blue-900 dark:text-blue-300">
+                    ✓ {jobDescription.length} characters captured
+                  </p>
+                </div>
               )}
             </div>
 
             {/* Resume Section */}
-            <div className="card p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                  <span>📄</span>
-                  <span>Step 2: Upload or Paste Your Resume</span>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 hover:shadow-2xl transition-all">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                  <span className="text-3xl">📄</span>
+                  <span>Your Resume</span>
                 </h3>
-                <span className="badge badge-primary">Required</span>
+                <span className="px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-full">STEP 2</span>
               </div>
               <UploadResume onTextExtracted={setResumeText} />
               {resumeText && (
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  {resumeText.length} characters
-                </p>
+                <div className="mt-4 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                  <p className="text-sm font-semibold text-purple-900 dark:text-purple-300">
+                    ✓ {resumeText.length} characters captured
+                  </p>
+                </div>
               )}
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-center gap-4 mb-12">
+          <div className="flex justify-center gap-6 mb-16">
             <button 
               onClick={handleClear}
-              className="btn-secondary"
+              className="px-8 py-4 text-lg font-bold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl shadow-lg transition-all border-2 border-gray-300 dark:border-gray-600"
               disabled={loading}
             >
               Clear All
@@ -154,9 +168,19 @@ function Home() {
             <button 
               onClick={handleAnalyze} 
               disabled={loading || !resumeText || !jobDescription}
-              className="btn-primary text-lg px-8"
+              className="px-12 py-4 text-xl font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 rounded-xl shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 hover:shadow-purple-500/50"
             >
-              {loading ? '🔍 Analyzing...' : '🚀 Analyze Match'}
+              {loading ? (
+                <span className="flex items-center gap-3">
+                  <svg className="animate-spin h-6 w-6" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Analyzing...
+                </span>
+              ) : (
+                '🚀 Analyze Resume Match'
+              )}
             </button>
           </div>
 
@@ -175,73 +199,84 @@ function Home() {
       )}
 
       {/* Features Info */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-white dark:bg-gray-800">
-        <h3 className="text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-12">
-          Powerful Features to Boost Your Career
-        </h3>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-slate-900 rounded-3xl shadow-2xl my-16">
+        <div className="text-center mb-16">
+          <h3 className="text-5xl font-extrabold text-gray-900 dark:text-white mb-4">
+            Powerful Features for Your Success
+          </h3>
+          <p className="text-xl text-gray-600 dark:text-gray-300">
+            Everything you need to land your dream job
+          </p>
+        </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div className="text-center p-6 rounded-xl bg-gray-50 dark:bg-gray-700 hover:shadow-lg transition-all">
-            <div className="text-5xl mb-4">⭐</div>
-            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">Match Score</h4>
-            <p className="text-gray-600 dark:text-gray-400">
-              Get an instant percentage-based rating showing how well your resume aligns with the job requirements
+          <div className="group relative text-center p-8 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+            <div className="text-6xl mb-6 transform group-hover:scale-110 transition-transform">⭐</div>
+            <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Match Score</h4>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              Instant AI-powered analysis showing your compatibility with job requirements
             </p>
           </div>
-          <div className="text-center p-6 rounded-xl bg-gray-50 dark:bg-gray-700 hover:shadow-lg transition-all">
-            <div className="text-5xl mb-4">🔍</div>
-            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">Gap Analysis</h4>
-            <p className="text-gray-600 dark:text-gray-400">
-              Discover missing skills, tools, and experiences that could make your application stronger
+          <div className="group relative text-center p-8 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+            <div className="text-6xl mb-6 transform group-hover:scale-110 transition-transform">🔍</div>
+            <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Gap Analysis</h4>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              Identify missing skills and qualifications to strengthen your application
             </p>
           </div>
-          <div className="text-center p-6 rounded-xl bg-gray-50 dark:bg-gray-700 hover:shadow-lg transition-all">
-            <div className="text-5xl mb-4">💡</div>
-            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">Smart Recommendations</h4>
-            <p className="text-gray-600 dark:text-gray-400">
-              Receive specific, actionable suggestions to optimize your resume for maximum impact
+          <div className="group relative text-center p-8 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+            <div className="text-6xl mb-6 transform group-hover:scale-110 transition-transform">📊</div>
+            <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Skill Assessment</h4>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              Comprehensive breakdown of matched and missing technical competencies
             </p>
           </div>
-          <div className="text-center p-6 rounded-xl bg-gray-50 dark:bg-gray-700 hover:shadow-lg transition-all">
-            <div className="text-5xl mb-4">💬</div>
-            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">AI Career Coach</h4>
-            <p className="text-gray-600 dark:text-gray-400">
-              Chat with our AI assistant for personalized career advice and interview preparation tips
+          <div className="group relative text-center p-8 rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border border-orange-200 dark:border-orange-800 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+            <div className="text-6xl mb-6 transform group-hover:scale-110 transition-transform">💬</div>
+            <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">AI Career Coach</h4>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              Get personalized career guidance and strategic recommendations
             </p>
           </div>
         </div>
       </div>
 
       {/* How It Works Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h3 className="text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-12">
-          How It Works
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <h3 className="text-5xl font-extrabold text-center text-gray-900 dark:text-white mb-6">
+          Simple. Fast. Powerful.
         </h3>
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+        <p className="text-xl text-center text-gray-600 dark:text-gray-300 mb-16 max-w-2xl mx-auto">
+          Get professional resume analysis in three easy steps
+        </p>
+        <div className="grid md:grid-cols-3 gap-12 relative">
+          {/* Connection lines */}
+          <div className="hidden md:block absolute top-24 left-1/4 right-1/4 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-green-600"></div>
+          
+          <div className="relative text-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-2xl flex items-center justify-center text-3xl font-black mx-auto mb-6 shadow-2xl transform hover:scale-110 transition-transform">
               1
             </div>
-            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">Upload & Paste</h4>
-            <p className="text-gray-600 dark:text-gray-400">
-              Simply paste the job description and upload your resume (PDF, DOC, or paste text)
+            <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Upload Documents</h4>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              Paste the job description and upload your resume in any format (PDF, DOC, or plain text)
             </p>
           </div>
-          <div className="text-center">
-            <div className="w-16 h-16 bg-purple-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+          <div className="relative text-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-pink-600 text-white rounded-2xl flex items-center justify-center text-3xl font-black mx-auto mb-6 shadow-2xl transform hover:scale-110 transition-transform">
               2
             </div>
-            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">AI Analysis</h4>
-            <p className="text-gray-600 dark:text-gray-400">
-              Our advanced AI analyzes your resume against the job requirements in seconds
+            <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">AI Processing</h4>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              Advanced AI algorithms analyze your qualifications against job requirements in real-time
             </p>
           </div>
-          <div className="text-center">
-            <div className="w-16 h-16 bg-green-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+          <div className="relative text-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-green-600 to-emerald-600 text-white rounded-2xl flex items-center justify-center text-3xl font-black mx-auto mb-6 shadow-2xl transform hover:scale-110 transition-transform">
               3
             </div>
-            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">Get Results</h4>
-            <p className="text-gray-600 dark:text-gray-400">
-              Receive detailed insights, match scores, and personalized recommendations instantly
+            <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Actionable Insights</h4>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              Receive comprehensive analysis with match scores, gap identification, and strategic recommendations
             </p>
           </div>
         </div>
@@ -249,20 +284,30 @@ function Home() {
 
       {/* CTA Section */}
       {!isAuthenticated && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-12 shadow-2xl">
-            <h3 className="text-3xl font-bold text-white mb-4">
-              Ready to Land Your Dream Job?
-            </h3>
-            <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Join thousands of job seekers who have improved their resumes with Career Compass
-            </p>
-            <Link
-              to="/register"
-              className="inline-block px-8 py-4 text-lg font-semibold text-blue-600 bg-white hover:bg-gray-100 rounded-lg shadow-lg transition-all transform hover:scale-105"
-            >
-              Start Your Free Analysis
-            </Link>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+          <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl p-16 shadow-2xl overflow-hidden">
+            <div className="absolute inset-0 bg-black opacity-10"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black opacity-20"></div>
+            <div className="relative z-10">
+              <h3 className="text-5xl font-extrabold text-white mb-6">
+                Ready to Accelerate Your Career?
+              </h3>
+              <p className="text-2xl text-blue-100 mb-10 max-w-3xl mx-auto leading-relaxed">
+                Join professionals worldwide who trust Career Compass for intelligent resume optimization
+              </p>
+              <Link
+                to="/register"
+                className="inline-block px-12 py-5 text-xl font-bold text-indigo-700 bg-white hover:bg-gray-50 rounded-xl shadow-2xl transition-all transform hover:scale-105 hover:shadow-white/30"
+              >
+                <span className="flex items-center gap-3">
+                  Start Your Free Analysis
+                  <span className="text-2xl">→</span>
+                </span>
+              </Link>
+              <p className="mt-6 text-blue-200 text-sm">
+                No credit card required • Instant results • 100% secure
+              </p>
+            </div>
           </div>
         </div>
       )}
