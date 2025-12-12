@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Home from './pages/Home/Home.jsx';
 import Analysis from './pages/Analysis/Analysis.jsx';
@@ -10,6 +10,12 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 
 function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg shadow-lg sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800">
@@ -50,7 +56,7 @@ function Navbar() {
                   </span>
                 </div>
                 <button
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="px-5 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 rounded-lg transition-all shadow-lg hover:shadow-xl"
                 >
                   Logout
