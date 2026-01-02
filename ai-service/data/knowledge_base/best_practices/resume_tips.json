@@ -1,0 +1,75 @@
+{
+  "general_tips": [
+    "Use action verbs to start bullet points (Led, Developed, Implemented, Designed, Optimized)",
+    "Quantify achievements with specific metrics (percentages, dollar amounts, user numbers)",
+    "Tailor resume to each job posting by matching keywords",
+    "Keep resume to 1-2 pages maximum",
+    "Use consistent formatting and professional fonts",
+    "Include relevant technical skills section",
+    "Add links to GitHub, LinkedIn, and portfolio"
+  ],
+  "technical_skills": [
+    "Group skills by category (Languages, Frameworks, Tools, Databases)",
+    "List proficiency levels for key technologies",
+    "Include both technical and soft skills",
+    "Prioritize skills mentioned in job description",
+    "Update skills section regularly with new technologies"
+  ],
+  "experience_section": [
+    "Use reverse chronological order (most recent first)",
+    "Include company name, location, job title, and dates",
+    "Focus on accomplishments, not just responsibilities",
+    "Use the STAR method (Situation, Task, Action, Result)",
+    "Highlight leadership and collaboration experiences",
+    "Include metrics that demonstrate impact"
+  ],
+  "quantifiable_achievements": [
+    "Performance improvements: 'Optimized queries reducing response time by 45%'",
+    "Cost savings: 'Reduced cloud infrastructure costs by $50K annually'",
+    "Scale: 'Built API serving 2M+ requests daily'",
+    "Team impact: 'Led team of 5 engineers'",
+    "User impact: 'Improved user experience for 100K+ users'",
+    "Revenue: 'Delivered features generating $2M in revenue'"
+  ],
+  "common_mistakes": [
+    "Using passive voice instead of active voice",
+    "Including irrelevant work experience",
+    "Listing job duties instead of achievements",
+    "Having spelling or grammatical errors",
+    "Using generic buzzwords without context",
+    "Not customizing resume for each application",
+    "Including too much personal information"
+  ],
+  "ats_optimization": [
+    "Use standard section headings (Experience, Education, Skills)",
+    "Include keywords from job description naturally",
+    "Avoid images, tables, and complex formatting",
+    "Use standard fonts (Arial, Calibri, Times New Roman)",
+    "Save as .docx or .pdf format",
+    "Spell out acronyms at least once",
+    "Use full date ranges (January 2020 - Present)"
+  ],
+  "role_specific": {
+    "software_engineer": [
+      "Emphasize programming languages and frameworks",
+      "Include GitHub contributions and personal projects",
+      "Highlight system design and architecture experience",
+      "Mention code review and mentoring activities",
+      "List relevant certifications (AWS, Kubernetes, etc.)"
+    ],
+    "data_scientist": [
+      "Showcase ML models and algorithms used",
+      "Include publications and research experience",
+      "Highlight business impact of data insights",
+      "List statistical and ML tools/libraries",
+      "Mention experience with big data technologies"
+    ],
+    "frontend_developer": [
+      "Emphasize UI/UX collaboration",
+      "Highlight responsive design and accessibility",
+      "Include portfolio link with live projects",
+      "Mention modern JavaScript frameworks",
+      "Show performance optimization achievements"
+    ]
+  }
+}

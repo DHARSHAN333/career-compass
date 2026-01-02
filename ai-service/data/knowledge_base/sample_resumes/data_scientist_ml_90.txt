@@ -1,0 +1,50 @@
+SARAH JOHNSON
+Data Scientist & Machine Learning Engineer
+Email: sarah.j@email.com | LinkedIn: linkedin.com/in/sarahjohnson | Portfolio: sarahjohnson.ai
+
+SUMMARY
+Innovative Data Scientist with 6+ years of experience building production ML systems and deriving actionable insights from complex datasets. Specialized in NLP, computer vision, and recommender systems. Successfully deployed models that increased revenue by $5M and improved customer satisfaction by 40%.
+
+TECHNICAL EXPERTISE
+Machine Learning: TensorFlow, PyTorch, Scikit-learn, XGBoost, LightGBM, Keras
+Languages: Python, R, SQL, Scala
+Big Data: Apache Spark, Hadoop, Hive, Kafka
+Cloud: AWS (SageMaker, EMR, S3), GCP (BigQuery, Vertex AI), Azure ML
+Tools: Jupyter, MLflow, Airflow, Docker, Git, Tableau, Power BI
+Domains: NLP, Computer Vision, Time Series, Recommender Systems, A/B Testing
+
+EXPERIENCE
+
+Senior Data Scientist | DataTech Corp | New York, NY | 2021 - Present
+• Built end-to-end NLP pipeline for sentiment analysis processing 100K+ customer reviews daily, improving product recommendations accuracy by 35%
+• Developed deep learning model using BERT and PyTorch that reduced customer churn by 28%, saving $3M annually
+• Led cross-functional team of 4 in designing A/B testing framework used across 20+ product experiments
+• Implemented MLOps pipeline using MLflow and Airflow, reducing model deployment time from weeks to days
+• Presented insights to C-level executives, influencing strategic decisions on product roadmap
+
+Machine Learning Engineer | AI Solutions Inc. | Boston, MA | 2019 - 2021
+• Designed and deployed computer vision model using CNNs for quality control, reducing defects by 45%
+• Built real-time recommendation system serving 5M+ users with sub-100ms latency using collaborative filtering
+• Optimized model training pipeline reducing compute costs by 40% through efficient hyperparameter tuning
+• Mentored 2 junior data scientists on ML best practices and production deployment
+
+Data Analyst | Analytics Co. | Remote | 2018 - 2019
+• Analyzed user behavior data using SQL and Python, identifying $2M revenue opportunity
+• Created interactive dashboards in Tableau for stakeholder decision-making
+• Conducted statistical analysis and hypothesis testing for product experiments
+
+EDUCATION
+Master of Science in Data Science | Columbia University | 2018
+Bachelor of Science in Statistics | UC Berkeley | 2016
+
+CERTIFICATIONS
+• TensorFlow Developer Certificate (2021)
+• AWS Certified Machine Learning - Specialty (2022)
+• Google Cloud Professional ML Engineer (2023)
+
+PUBLICATIONS & PROJECTS
+• Published paper: "Efficient Training of Large Language Models" - NeurIPS 2023
+• GitHub: 15+ ML projects with 2K+ stars
+• Kaggle Competitions Master (Top 1%)
+
+Match Score Context: 90% - Strong ML/Data Science profile with production experience, relevant certifications, publications, and proven business impact with quantifiable metrics.

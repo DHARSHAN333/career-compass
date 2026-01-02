@@ -20,6 +20,11 @@ const generateToken = (userId) => {
 // Register new user
 export const register = async (req, res) => {
   try {
+    // Log incoming request for debugging
+    logger.info('Registration attempt received');
+    logger.info('Request body:', JSON.stringify(req.body, null, 2));
+    logger.info('Content-Type:', req.get('Content-Type'));
+    
     // Check MongoDB connection
     if (!isMongoConnected()) {
       return res.status(503).json({
@@ -32,6 +37,7 @@ export const register = async (req, res) => {
     // Validate input
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      logger.warn('Validation errors:', JSON.stringify(errors.array(), null, 2));
       return res.status(400).json({
         success: false,
         errors: errors.array()

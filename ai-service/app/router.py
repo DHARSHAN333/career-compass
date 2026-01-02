@@ -8,7 +8,8 @@ from app.pipelines.scoring import calculate_match_score
 from app.pipelines.gap_analysis import identify_gaps
 from app.pipelines.tip_generator import generate_tips, generate_top_tip
 from app.pipelines.extract_skills import extract_skills, find_matched_skills, find_missing_skills
-from app.clients.llm_client import get_llm_response
+from app.clients.llm_client import get_llm_response, USE_RAG
+from app.pipelines.build_pipeline import retrieve_relevant_context, analyze_with_rag
 from app.utils.text_extractor import TextExtractor
 import os
 import re
@@ -16,10 +17,11 @@ from typing import Optional
 
 router = APIRouter()
 
-# Helper functions for enhanced AI analysis
+# Helper functions for enhanced AI analysis with RAG support
 async def analyze_gaps_with_ai(resume_text, job_description, missing_skills, matched_skills, detail_level):
-    """Use AI to identify detailed gaps between resume and job requirements"""
+    """Use AI to identify detailed gaps between resume and job requirements (with optional RAG)"""
     try:
+        # Build prompt
         prompt = f"""Analyze the gap between this candidate's resume and the job requirements.
 
 RESUME:
@@ -40,7 +42,21 @@ Format as:
 Category | Description | Impact
 """
         
-        response = await get_llm_response(prompt, "")
+        # Use RAG if enabled
+        if USE_RAG:
+            print("🔍 Using RAG for gap analysis...")
+            try:
+                rag_response = await analyze_with_rag(
+                    resume_text, 
+                    job_description, 
+                    "Identify skill gaps and provide specific recommendations based on successful resume examples"
+                )
+                response = rag_response
+            except Exception as rag_error:
+                print(f"RAG failed, falling back to direct AI: {rag_error}")
+                response = await get_llm_response(prompt, "")
+        else:
+            response = await get_llm_response(prompt, "")
         
         # Parse AI response into structured gaps
         gaps = []
@@ -65,7 +81,7 @@ Category | Description | Impact
         return identify_gaps(resume_text, job_description, missing_skills)
 
 async def generate_recommendations_with_ai(resume_text, job_description, gaps, missing_skills, matched_skills, score, detail_level, include_examples):
-    """Generate personalized recommendations using AI"""
+    """Generate personalized recommendations using AI (with optional RAG)"""
     try:
         example_text = " with specific examples" if include_examples else ""
         
@@ -85,7 +101,21 @@ Provide specific, actionable recommendations{example_text}. Each recommendation 
 
 Format each as a single actionable sentence."""
         
-        response = await get_llm_response(prompt, "")
+        # Use RAG if enabled
+        if USE_RAG:
+            print("🔍 Using RAG for recommendations...")
+            try:
+                rag_response = await analyze_with_rag(
+                    resume_text,
+                    job_description,
+                    f"Generate specific recommendations based on best practices and successful examples. Score: {score}%, Missing: {', '.join(missing_skills[:5])}"
+                )
+                response = rag_response
+            except Exception as rag_error:
+                print(f"RAG failed, falling back to direct AI: {rag_error}")
+                response = await get_llm_response(prompt, "")
+        else:
+            response = await get_llm_response(prompt, "")
         
         # Parse recommendations
         recommendations = []
@@ -200,6 +230,7 @@ def generate_skill_suggestion(skill, job_description, include_examples):
 async def analyze_resume(request: AnalyzeRequest):
     """
     Analyze resume against job description with AI-powered comprehensive matching
+    Now supports RAG for enhanced analysis with example-based learning
     """
     try:
         # Extract analysis configuration
@@ -207,7 +238,7 @@ async def analyze_resume(request: AnalyzeRequest):
         priority_focus = getattr(request, 'priority_focus', 'balanced')
         include_examples = getattr(request, 'include_examples', True)
         
-        print(f"\n[Analysis] Starting with config: detail={detail_level}, focus={priority_focus}")
+        print(f"\n[Analysis] Starting with config: detail={detail_level}, focus={priority_focus}, RAG={USE_RAG}")
         
         # Use AI to extract skills comprehensively
         resume_skills = extract_skills(request.resume_text)
@@ -225,7 +256,7 @@ async def analyze_resume(request: AnalyzeRequest):
         # Calculate comprehensive match score
         score = calculate_match_score(matched, jd_skills, request.resume_text, request.job_description)
         
-        # Use AI to analyze gaps with context
+        # Use AI to analyze gaps with context (RAG-enhanced if enabled)
         gaps = await analyze_gaps_with_ai(
             request.resume_text, 
             request.job_description, 
@@ -234,7 +265,7 @@ async def analyze_resume(request: AnalyzeRequest):
             detail_level
         )
         
-        # Generate AI-powered recommendations
+        # Generate AI-powered recommendations (RAG-enhanced if enabled)
         recommendations = await generate_recommendations_with_ai(
             request.resume_text,
             request.job_description,
@@ -274,7 +305,7 @@ async def analyze_resume(request: AnalyzeRequest):
             for i, skill in enumerate(missing[:10])
         ]
         
-        print(f"[Analysis] Complete! Score: {score}%")
+        print(f"[Analysis] Complete! Score: {score}% {'(RAG-Enhanced)' if USE_RAG else ''}")
         
         return AnalyzeResponse(
             match_score=score,
@@ -283,7 +314,7 @@ async def analyze_resume(request: AnalyzeRequest):
             gaps=gaps,
             recommendations=recommendations,
             top_tip=top_tip,
-            model=os.getenv("LLM_MODEL", "gemini-2.0-flash")
+            model=os.getenv("LLM_MODEL", "gemini-2.5-flash") + (" + RAG" if USE_RAG else "")
         )
     except Exception as e:
         print(f"Analysis error: {e}")

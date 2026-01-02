@@ -1,0 +1,48 @@
+JOB TITLE: Senior Backend Engineer
+
+COMPANY: TechVenture Inc.
+LOCATION: San Francisco, CA (Hybrid)
+
+ABOUT US:
+TechVenture is a fast-growing SaaS company revolutionizing the fintech space. We serve 100K+ customers and process $1B+ in transactions annually.
+
+JOB DESCRIPTION:
+We're seeking an experienced Senior Backend Engineer to design and build scalable microservices that power our platform. You'll work with cutting-edge technologies and collaborate with cross-functional teams to deliver high-impact features.
+
+REQUIREMENTS:
+• 5+ years of professional software engineering experience
+• Strong proficiency in Python, Java, or Go
+• Experience with microservices architecture and RESTful API design
+• Solid understanding of SQL and NoSQL databases (PostgreSQL, MongoDB, Redis)
+• Hands-on experience with Docker, Kubernetes, and container orchestration
+• Experience with cloud platforms (AWS, GCP, or Azure)
+• Strong knowledge of CI/CD pipelines and DevOps practices
+• Experience with message queues (RabbitMQ, Kafka) and event-driven architecture
+• Excellent problem-solving skills and ability to work in agile environment
+• Bachelor's degree in Computer Science or equivalent experience
+
+NICE TO HAVE:
+• Experience with GraphQL
+• Knowledge of distributed systems and microservices patterns
+• Experience with monitoring tools (Datadog, New Relic, Prometheus)
+• Contributions to open-source projects
+• AWS/GCP certifications
+
+RESPONSIBILITIES:
+• Design and implement scalable backend services and APIs
+• Write clean, maintainable, and well-tested code
+• Optimize application performance and database queries
+• Collaborate with frontend engineers and product managers
+• Mentor junior engineers and conduct code reviews
+• Participate in architectural decisions and technical planning
+• Ensure system reliability and security best practices
+
+WHAT WE OFFER:
+• Competitive salary ($150K - $200K) + equity
+• Comprehensive health, dental, and vision insurance
+• 401(k) matching
+• Flexible work schedule and remote options
+• Professional development budget
+• Modern tech stack and latest tools
+
+Key Skills: Python, Microservices, Docker, Kubernetes, AWS, PostgreSQL, CI/CD, RESTful APIs, Kafka

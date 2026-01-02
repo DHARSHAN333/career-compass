@@ -1,0 +1,56 @@
+MICHAEL CHEN
+Full Stack Developer
+michael.chen@email.com | (555) 987-6543 | github.com/mchen | Portfolio: michaelchen.dev
+
+PROFESSIONAL PROFILE
+Creative Full Stack Developer with 5 years of experience building responsive web applications and scalable APIs. Passionate about clean code, user experience, and modern JavaScript frameworks. Delivered projects that increased user engagement by 50% and reduced page load times by 60%.
+
+TECHNICAL STACK
+Frontend: React, TypeScript, Next.js, Vue.js, Redux, HTML5, CSS3, Tailwind CSS, Material-UI
+Backend: Node.js, Express.js, Python, Django, RESTful APIs, GraphQL
+Databases: MongoDB, PostgreSQL, MySQL, Redis
+DevOps: Docker, AWS (EC2, S3, Lambda), CI/CD, Git, GitHub Actions
+Testing: Jest, React Testing Library, Pytest, Cypress
+
+WORK EXPERIENCE
+
+Full Stack Developer | WebTech Solutions | Seattle, WA | 2021 - Present
+• Architected and developed e-commerce platform using React and Node.js, generating $2M in revenue
+• Built RESTful APIs with Node.js/Express handling 500K+ requests daily with 99.5% uptime
+• Implemented responsive UI components used across 15+ pages, improving mobile experience for 60% of users
+• Integrated payment processing with Stripe, processing $500K+ monthly transactions
+• Reduced API response time by 55% through database query optimization and Redis caching
+• Collaborated with UX designers to implement accessibility standards (WCAG 2.1)
+
+Junior Full Stack Developer | StartupHub | Portland, OR | 2019 - 2021
+• Developed 20+ RESTful API endpoints using Django and PostgreSQL
+• Created dynamic frontend features with React and Redux, improving user retention by 30%
+• Implemented JWT-based authentication and role-based access control
+• Wrote unit and integration tests achieving 80% code coverage
+• Participated in code reviews and adopted agile/scrum methodologies
+
+Frontend Developer Intern | Digital Agency | Remote | 2018 - 2019
+• Built responsive landing pages using HTML, CSS, and JavaScript
+• Converted Figma designs to pixel-perfect React components
+• Optimized website performance, improving Lighthouse scores from 65 to 92
+
+PROJECTS
+
+TaskMaster Pro (Personal Project)
+• Full-stack task management app with real-time collaboration features using Socket.io
+• Tech: React, Node.js, MongoDB, Redis, Docker
+• 500+ active users, 4.5★ rating on Product Hunt
+
+Open Source Contributions
+• Contributor to React Router (5 merged PRs)
+• Maintained npm package with 10K+ downloads
+
+EDUCATION
+Bachelor of Science in Computer Science | University of Washington | 2019
+Relevant Coursework: Web Development, Algorithms, Database Systems, Software Engineering
+
+CERTIFICATIONS
+• AWS Certified Developer - Associate (2022)
+• React Developer Certification (2021)
+
+Match Score Context: 88% - Solid full-stack experience with modern tech stack, personal projects demonstrating passion, and good balance of frontend/backend skills.

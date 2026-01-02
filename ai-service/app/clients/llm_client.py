@@ -8,6 +8,7 @@ load_dotenv()
 # Check if OpenAI is available
 try:
     from langchain.chat_models import ChatOpenAI
+    from langchain_google_genai import ChatGoogleGenerativeAI
     OPENAI_AVAILABLE = True
 except ImportError:
     OPENAI_AVAILABLE = False
@@ -19,6 +20,9 @@ if GOOGLE_API_KEY:
     GEMINI_AVAILABLE = True
 else:
     GEMINI_AVAILABLE = False
+
+# RAG Configuration
+USE_RAG = os.getenv("USE_RAG", "false").lower() == "true"
 
 def get_llm():
     """Get LangChain LLM instance (for OpenAI)"""
@@ -34,12 +38,27 @@ def get_llm():
         openai_api_key=api_key
     )
 
-def get_gemini_model():
-    """Get Google Gemini model instance"""
-    if not GEMINI_AVAILABLE:
+def get_gemini_llm_langchain():
+    """Get Google Gemini via LangChain wrapper"""
+    if not GOOGLE_API_KEY or not OPENAI_AVAILABLE:
         return None
     
     model_name = os.getenv("LLM_MODEL", "gemini-2.5-flash")
+    
+    return ChatGoogleGenerativeAI(
+        model=model_name,
+        google_api_key=GOOGLE_API_KEY,
+        temperature=0.7,
+        convert_system_message_to_human=True
+    )
+
+def get_gemini_model():
+    """Get Google Gemini model instance (direct SDK)"""
+    if not GEMINI_AVAILABLE:
+        return None
+    
+    model_name = os.getenv("LLM_MODEL", "gemini-1.5-flash")
+    # Use stable free tier model
     return genai.GenerativeModel(model_name)
 
 async def get_llm_response(prompt: str, context: str = "", history: Optional[List[Dict]] = None) -> str:
@@ -111,20 +130,28 @@ def get_mock_response(prompt: str, context: str = "") -> str:
             resume_snippet = resume_match.group(1).strip()
     
     # Greetings and simple questions
-    if any(word in prompt_lower for word in ['hi', 'hello', 'hey', 'greetings']) and len(prompt_lower.split()) <= 3:
+    if any(word in prompt_lower for word in ['hi', 'hello', 'hey', 'greetings']) and len(prompt_lower.split()) <= 5:
         if match_score > 0:
+            skill_text = f" Your top skills include: {', '.join(matched_skills[:3])}." if matched_skills else ""
             return (
-                f"Hello! I'm your AI Career Advisor.\n\n"
-                f"I've analyzed your resume and you have a **{match_score}% match** with the job!\n\n"
+                f"Hello! I've reviewed your resume and job match analysis.\n\n"
+                f"**Your Match Score: {match_score}%**{skill_text}\n\n"
                 f"I can help you with:\n"
-                f"- Understanding your strengths and gaps\n"
-                f"- Skill development priorities\n"
-                f"- Resume improvement tips\n"
-                f"- Interview preparation\n\n"
+                f"• What are your strongest qualifications?\n"
+                f"• Which skills should you develop?\n"
+                f"• How to improve your resume?\n"
+                f"• Interview preparation tips\n\n"
                 f"What would you like to know?"
             )
-        return ("Hello! I'm your AI Career Advisor. I can help with resume analysis, career advice, "
-                "skill development, and interview prep. What would you like to know?")
+        return (
+            "Hello! I'm your AI Career Advisor.\n\n"
+            "I can help you with:\n"
+            "• Resume analysis and feedback\n"
+            "• Skill gap identification\n"
+            "• Career development strategy\n"
+            "• Interview preparation\n\n"
+            "What can I help you with today?"
+        )
     
     # Skill learning questions
     if any(word in prompt_lower for word in ['skill', 'learn', 'priorit', 'study', 'what skills']):

@@ -67,21 +67,34 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Clear previous errors
+    setErrors({});
+    
     if (!validateForm()) {
       return;
     }
 
     setLoading(true);
 
-    const result = await register(formData);
-    
-    if (result.success) {
-      navigate('/login');
-    } else {
-      setErrors({ general: result.error });
+    try {
+      const result = await register(formData);
+      
+      if (result.success) {
+        // User is now automatically logged in with JWT token
+        console.log('✓ Registration successful! You are now logged in.');
+        // Navigate to home page where they can start analysis
+        setTimeout(() => {
+          navigate('/');
+        }, 500);
+      } else {
+        setErrors({ general: result.error });
+      }
+    } catch (error) {
+      console.error('Unexpected registration error:', error);
+      setErrors({ general: 'An unexpected error occurred. Please try again.' });
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   return (

@@ -33,7 +33,7 @@ def extract_skills_with_ai(text: str) -> List[str]:
     """Extract skills using Gemini AI with comprehensive prompt"""
     try:
         # Use the configured model from environment
-        model_name = os.getenv("LLM_MODEL", "gemini-2.0-flash-exp")
+        model_name = os.getenv("LLM_MODEL", "gemini-1.5-flash")
         model = genai.GenerativeModel(model_name)
         
         prompt = f"""Extract ALL technical and soft skills from this text. Be extremely thorough and consistent.
@@ -108,14 +108,18 @@ def extract_skills(text: str) -> List[str]:
     text_lower = text.lower()
     found_skills = set()
     
-    # Method 1: Use AI extraction for comprehensive results
+    # Try AI extraction first (more accurate)
     try:
-        ai_skills = extract_skills_with_ai(text)
-        found_skills.update(ai_skills)
+        if GOOGLE_API_KEY:
+            ai_skills = extract_skills_with_ai(text)
+            if ai_skills and len(ai_skills) > 0:
+                found_skills.update(ai_skills)
+                print(f"[Skill Extraction] ✓ AI extracted {len(ai_skills)} skills")
     except Exception as e:
-        print(f"AI extraction failed, using keyword matching: {e}")
+        print(f"[Skill Extraction] AI extraction failed: {e}, falling back to keyword matching")
     
-    # Method 2: Keyword matching as backup/supplement
+    # Method 2: Keyword matching (always run as backup/supplement)
+    keyword_count_before = len(found_skills)
     for skill in TECH_SKILLS:
         if len(skill.split()) == 1:
             pattern = r'\b' + re.escape(skill) + r'\b'
@@ -138,6 +142,8 @@ def extract_skills(text: str) -> List[str]:
             two_word = f"{word} {words[i+1]}"
             if two_word.lower() in TECH_SKILLS:
                 found_skills.add(two_word.title())
+    
+    print(f"[Skill Extraction] ✓ Keyword matching found {len(found_skills)} skills")
     
     return sorted(list(found_skills))
 

@@ -46,6 +46,8 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
+      console.log('Attempting registration with:', { ...userData, password: '[HIDDEN]', confirmPassword: '[HIDDEN]' });
+      
       const response = await axios.post('http://localhost:5000/api/v1/auth/register', userData);
       const { user, token } = response.data.data;
       
@@ -55,9 +57,21 @@ export const AuthProvider = ({ children }) => {
       
       return { success: true };
     } catch (error) {
+      console.error('Registration error:', error.response?.data || error.message);
+      
+      // Handle validation errors (array of error objects)
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        const errorMessages = error.response.data.errors.map(err => err.msg).join(', ');
+        return {
+          success: false,
+          error: errorMessages
+        };
+      }
+      
+      // Handle single error message
       return {
         success: false,
-        error: error.response?.data?.error || error.response?.data?.errors?.[0]?.msg || 'Registration failed'
+        error: error.response?.data?.error || error.message || 'Registration failed. Please try again.'
       };
     }
   };

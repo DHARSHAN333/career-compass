@@ -60,13 +60,21 @@ const aiClient = {
       logger.error('Error code:', error.code);
       logger.error('Error response:', error.response?.data);
       logger.error('AI Service URL:', AI_SERVICE_BASE_URL);
+      logger.error('Full error:', error.stack);
       
       // Return mock data if AI service is unavailable or has errors
-      if (error.code === 'ECONNREFUSED' || 
-          error.code === 'ETIMEDOUT' || 
-          error.code === 'ECONNABORTED' ||
-          error.response?.status >= 400) {
-        logger.warn('⚠️ AI service unavailable, returning mock analysis data');
+      if (error.code === 'ECONNREFUSED') {
+        logger.error('⚠️ AI service not running! Start it with: cd ai-service && python -m uvicorn main:app --reload --port 8000');
+        return this.getMockAnalysis(resumeText, jobDescription);
+      }
+      
+      if (error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
+        logger.warn('⚠️ AI service timeout, returning mock analysis data');
+        return this.getMockAnalysis(resumeText, jobDescription);
+      }
+      
+      if (error.response?.status >= 400) {
+        logger.warn(`⚠️ AI service returned ${error.response.status} error, returning mock analysis data`);
         return this.getMockAnalysis(resumeText, jobDescription);
       }
       
@@ -155,8 +163,23 @@ const aiClient = {
     const commonSkills = ['JavaScript', 'React', 'Node.js', 'Python', 'SQL'];
     const matchedCount = Math.floor(Math.random() * 3) + 2;
     
+    // Calculate a dynamic score based on text similarity instead of hardcoded value
+    const resumeLower = (resumeText || '').toLowerCase();
+    const jdLower = (jobDescription || '').toLowerCase();
+    const resumeWords = new Set(resumeLower.split(/\s+/).filter(w => w.length > 3));
+    const jdWords = new Set(jdLower.split(/\s+/).filter(w => w.length > 3));
+    
+    let dynamicScore = 50; // Default base score
+    if (jdWords.size > 0 && resumeWords.size > 0) {
+      const commonWords = [...resumeWords].filter(w => jdWords.has(w));
+      const similarity = commonWords.length / jdWords.size;
+      dynamicScore = Math.round(Math.min(Math.max(similarity * 100, 30), 85)); // Between 30-85%
+    }
+    
+    logger.warn(`⚠️ Using mock analysis with dynamic score: ${dynamicScore}% (AI service unavailable)`);
+    
     return {
-      matchScore: 72,
+      matchScore: dynamicScore,
       matchedSkills: commonSkills.slice(0, matchedCount).map(skill => ({
         name: skill,
         relevance: 0.8 + Math.random() * 0.2

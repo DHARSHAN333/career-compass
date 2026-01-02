@@ -1,0 +1,48 @@
+JOHN SMITH
+Senior Software Engineer
+Email: john.smith@email.com | Phone: (555) 123-4567 | LinkedIn: linkedin.com/in/johnsmith
+
+PROFESSIONAL SUMMARY
+Results-driven Senior Software Engineer with 8+ years of experience in full-stack development, cloud architecture, and team leadership. Proven track record of delivering scalable solutions that improved system performance by 60% and reduced operational costs by $200K annually. Expert in Python, JavaScript, AWS, and modern DevOps practices.
+
+TECHNICAL SKILLS
+Languages: Python, JavaScript, TypeScript, Java, Go
+Frameworks: React, Node.js, Django, FastAPI, Express
+Cloud & DevOps: AWS (EC2, S3, Lambda, RDS), Docker, Kubernetes, Jenkins, Terraform
+Databases: PostgreSQL, MongoDB, Redis, DynamoDB
+Tools: Git, JIRA, Confluence, Datadog, New Relic
+
+PROFESSIONAL EXPERIENCE
+
+Senior Software Engineer | TechCorp Inc. | San Francisco, CA | 2020 - Present
+• Led team of 5 engineers in migrating monolithic application to microservices architecture, reducing deployment time by 70%
+• Designed and implemented RESTful APIs serving 2M+ daily requests with 99.9% uptime
+• Optimized database queries resulting in 45% faster response times and improved user experience for 100K+ users
+• Implemented CI/CD pipelines using Jenkins and Docker, reducing release cycle from 2 weeks to 2 days
+• Mentored 3 junior developers, conducting code reviews and establishing best practices
+
+Software Engineer | CloudSolutions LLC | Austin, TX | 2017 - 2020
+• Developed scalable backend services using Python and Django for SaaS platform serving 50K+ customers
+• Built real-time data processing pipeline using Apache Kafka and AWS Lambda
+• Improved test coverage from 40% to 85%, reducing production bugs by 60%
+• Collaborated with product team to implement features that increased user engagement by 35%
+
+Junior Software Engineer | StartupXYZ | Remote | 2016 - 2017
+• Built full-stack web applications using React and Node.js
+• Implemented authentication and authorization using JWT and OAuth 2.0
+• Participated in agile development process with 2-week sprints
+
+EDUCATION
+Bachelor of Science in Computer Science | University of California, Berkeley | 2016
+GPA: 3.8/4.0
+
+CERTIFICATIONS
+• AWS Certified Solutions Architect - Associate (2021)
+• Certified Kubernetes Administrator (CKA) (2022)
+
+ACHIEVEMENTS
+• Won "Innovation Award" for developing internal tool that saved 500+ engineering hours annually
+• Speaker at PyCon 2022 - "Building Scalable Microservices with Python"
+• Open source contributor to Django and FastAPI projects
+
+Match Score Context: 95% - This is an excellent example of a senior engineer resume with quantifiable achievements, strong technical skills, leadership experience, and relevant certifications.

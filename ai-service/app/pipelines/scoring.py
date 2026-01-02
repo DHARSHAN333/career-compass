@@ -22,7 +22,7 @@ def calculate_match_score(matched_skills: List[str], jd_skills: List[str],
         print("[Scoring] ✓ IDENTICAL texts detected (exact match) - returning 100%")
         return 100
     
-    # Calculate word-level similarity for near-identical cases
+    # Calculate word-level similarity for near-identical cases (more reasonable thresholds)
     if len(resume_normalized) > 50 and len(jd_normalized) > 50:
         resume_words = set(resume_normalized.split())
         jd_words = set(jd_normalized.split())
@@ -36,15 +36,16 @@ def calculate_match_score(matched_skills: List[str], jd_skills: List[str],
             
             print(f"[Scoring] Text similarity: {avg_similarity:.1%} (JD: {jd_coverage:.1%}, Resume: {resume_coverage:.1%})")
             
-            if avg_similarity >= 0.98:
-                print(f"[Scoring] ✓ NEAR-IDENTICAL texts ({avg_similarity:.1%}) - returning 100%")
-                return 100
-            elif avg_similarity >= 0.95:
-                print(f"[Scoring] ✓ Very similar texts ({avg_similarity:.1%}) - returning 98%")
-                return 98
+            # More realistic similarity thresholds
+            if avg_similarity >= 0.95:
+                print(f"[Scoring] ✓ NEAR-IDENTICAL texts ({avg_similarity:.1%}) - returning 99%")
+                return 99
             elif avg_similarity >= 0.90:
-                print(f"[Scoring] High similarity ({avg_similarity:.1%}) - returning 95%")
-                return 95
+                print(f"[Scoring] ✓ Very similar texts ({avg_similarity:.1%}) - returning 96%")
+                return 96
+            elif avg_similarity >= 0.85:
+                print(f"[Scoring] High similarity ({avg_similarity:.1%}) - returning 92%")
+                return 92
     
     if not jd_skills or len(jd_skills) == 0:
         return 50  # Default score if no JD skills
