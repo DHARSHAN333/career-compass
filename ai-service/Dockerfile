@@ -1,25 +1,16 @@
-FROM python:3.11-slim
+FROM node:20-slim
 
 WORKDIR /app
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+ENV NODE_ENV=production
 
-# Install build deps and runtime deps
-COPY requirements.txt ./
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc build-essential curl \
-    && pip install --upgrade pip setuptools wheel \
-    && pip install --no-cache-dir -r requirements.txt \
-    && apt-get remove -y gcc build-essential \
-    && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/*
+# Install dependencies
+COPY package*.json ./
+RUN npm ci --omit=dev
 
 # Copy app
 COPY . /app
 
-# Default port used by Render is provided via $PORT env var
 EXPOSE 8000
 
-# Use shell form so ${PORT} expansion works; default to 8000
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "node server.js"]

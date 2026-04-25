@@ -64,7 +64,7 @@ const aiClient = {
       
       // Return mock data if AI service is unavailable or has errors
       if (error.code === 'ECONNREFUSED') {
-        logger.error('⚠️ AI service not running! Start it with: cd ai-service && python -m uvicorn main:app --reload --port 8000');
+        logger.error('⚠️ AI service not running! Start it with: cd ai-service && npm start');
         return this.getMockAnalysis(resumeText, jobDescription);
       }
       

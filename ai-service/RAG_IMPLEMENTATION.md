@@ -1,66 +1,50 @@
-# RAG & LangChain Implementation Complete! 🎉
+# RAG Implementation (Node.js)
 
-## What Was Implemented
+## Current implementation
 
-### ✅ 1. **Dependencies Added** ([requirements.txt](requirements.txt))
-- `langchain-google-genai` - LangChain integration for Gemini
-- `sentence-transformers` - FREE local embeddings (no API key needed)
-- `chromadb` - Vector database for RAG
-- `faiss-cpu` - Fast similarity search
-- `python-docx` - Document parsing
+RAG is implemented in Node.js with local knowledge-base retrieval.
 
-### ✅ 2. **Configuration** ([.env](.env))
+### Core files
+
+- `src/services/knowledgeBase.service.js`
+    - Loads documents from `data/knowledge_base/**`
+    - Scores query/doc overlap
+    - Returns top-k context snippets
+
+- `src/services/analysis.service.js`
+    - Uses retrieved context during analysis and chat
+    - Appends `+ RAG` in model metadata when context is included
+
+- `scripts/build_knowledge_base.js`
+    - Node smoke test for retrieval context
+
+- `tests/test_rag.js`
+    - Basic runtime check for retrieval payload
+
+### Configuration
+
+Use `.env` values:
+
 ```env
-USE_RAG=true              # Toggle RAG on/off
-VECTOR_STORE_TYPE=chromadb
+USE_RAG=true
+RAG_TOP_K=3
 VECTOR_STORE_PATH=./data/vectorstore
-RAG_TOP_K=3              # Number of examples to retrieve
 ```
 
-### ✅ 3. **Vector Store** ([app/embeddings/vectorstore.py](app/embeddings/vectorstore.py))
-- Complete ChromaDB implementation
-- Local embedding model (sentence-transformers)
-- Add/search/delete documents
-- Persistent storage
+### Run checks
 
-### ✅ 4. **Knowledge Base** 
-- **Sample Data Created:**
-  - `data/knowledge_base/sample_resumes/` - 3 high-quality resume examples
-  - `data/knowledge_base/job_templates/` - Job description templates
-  - `data/knowledge_base/best_practices/` - Resume writing tips
-  
-- **Loader** ([app/embeddings/knowledge_base.py](app/embeddings/knowledge_base.py))
-  - Loads all knowledge base documents
-  - Extracts metadata (role, score, type)
-  - Provides role-specific tips
+```bash
+cd ai-service
+npm start
+node scripts/build_knowledge_base.js
+node tests/test_rag.js
+```
 
-### ✅ 5. **RAG Pipeline** ([app/pipelines/build_pipeline.py](app/pipelines/build_pipeline.py))
-- `build_rag_chain()` - LangChain RAG chain
-- `retrieve_relevant_context()` - Vector search
-- `analyze_with_rag()` - RAG-enhanced analysis
-- Full LangChain integration with Gemini
+### Knowledge base folders
 
-### ✅ 6. **LLM Client Updates** ([app/clients/llm_client.py](app/clients/llm_client.py))
-- Added `get_gemini_llm_langchain()` - LangChain wrapper
-- Added `USE_RAG` configuration flag
-- Backward compatible with existing code
-
-### ✅ 7. **Router Updates** ([app/router.py](app/router.py))
-- RAG-enhanced gap analysis
-- RAG-enhanced recommendations
-- Automatic fallback to direct AI if RAG fails
-- Response indicates if RAG was used
-
-### ✅ 8. **Build Script** ([scripts/build_knowledge_base.py](scripts/build_knowledge_base.py))
-- Populates vector store with knowledge base
-- One-time setup script
-- Includes test search
-
-### ✅ 9. **Test Suite** ([tests/test_rag.py](tests/test_rag.py))
-- Tests vector store
-- Tests knowledge base loading
-- Tests document retrieval
-- Tests RAG analysis
+- `data/knowledge_base/sample_resumes/`
+- `data/knowledge_base/job_templates/`
+- `data/knowledge_base/best_practices/`
 
 ---
 
